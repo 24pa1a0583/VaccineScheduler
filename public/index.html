@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ImmuTrack — Clinical Vaccine Scheduler & Immunization Manager</title>
+  <meta name="description" content="Next-generation clinical vaccine scheduler for doctors and patients with soft neumorphic UI and real-time clinical EHR synchronization.">
+  
+  <!-- Modern Typography (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="/css/neumorphic.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <!-- Ambient Neumorphic Background -->
+  <div class="app-background"></div>
+
+  <!-- Dynamic Toast Alerts -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- ======================================================================
+       SECTION 1: AUTHENTICATION (LOGIN / REGISTRATION)
+       ====================================================================== -->
+  <main id="auth-section" class="auth-page-wrapper">
+    <div class="auth-mockup-frame">
+      
+      <!-- Brand & Header -->
+      <header class="auth-header">
+        <div class="brand-badge">
+          <div class="brand-icon-circle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+            </svg>
+          </div>
+          <span class="brand-name">Immu<span>Track</span></span>
+        </div>
+        <h1 id="role-indicator-text">Patient Portal Access</h1>
+        <p id="role-subtitle">Manage immunization schedules, digital passes, and family doses</p>
+      </header>
+
+      <!-- Role Selector Segment (Doctor vs Patient) -->
+      <div class="role-selector-wrap">
+        <span class="role-selector-label">Select Account Role</span>
+        <div class="neo-segmented-control" role="tablist">
+          <button type="button" id="role-btn-patient" class="neo-segmented-option active" role="tab" aria-selected="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Patient
+          </button>
+          <button type="button" id="role-btn-doctor" class="neo-segmented-option" role="tab" aria-selected="false">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"></path>
+              <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"></path>
+              <circle cx="20" cy="10" r="2"></circle>
+            </svg>
+            Doctor
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode Selector Segment (Sign In vs Create Account) -->
+      <div class="mode-toggle-wrap">
+        <div class="neo-segmented-control" role="tablist">
+          <button type="button" id="mode-btn-signin" class="neo-segmented-option active" role="tab" aria-selected="true">
+            Sign In
+          </button>
+          <button type="button" id="mode-btn-signup" class="neo-segmented-option" role="tab" aria-selected="false">
+            Create Account
+          </button>
+        </div>
+      </div>
+
+      <!-- SIGN IN FORM -->
+      <form id="signin-form" class="auth-form" autocomplete="on" novalidate>
+        <div class="form-group">
+          <label for="signin-email" class="form-label">Email Address</label>
+          <div class="input-container">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+              </svg>
+            </span>
+            <input type="email" id="signin-email" class="neo-input" placeholder="name@domain.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="signin-password" class="form-label">Password</label>
+          <div class="input-container">
+            <span class="input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </span>
+            <input type="password" id="signin-password" class="neo-input" placeholder="Enter your password" required autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Options Row -->
+        <div class="form-options-row">
+          <label class="remember-me">
+            <div class="neo-switch">
+              <input type="checkbox" id="remember-me-toggle" checked>
+              <span class="neo-switch-slider"></span>
+            </div>
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-link" onclick="window.AuthController.showToast('Reset verification link sent to registered email address.', 'info'); return false;">Forgot password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="signin-submit-btn" class="btn-primary-glow auth-submit-btn">
+          Sign In to Portal
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+
+        <!-- 1-Click Fast Demo Credentials -->
+        <div class="demo-accounts-panel">
+          <div class="demo-title">
+            <span class="pulse-indicator"></span>
+            Instant One-Click Demo Access
+          </div>
+          <div class="demo-buttons-grid">
+            <button type="button" id="btn-demo-doctor" class="btn-demo-pill">
+              👨‍⚕️ Demo Doctor
+            </button>
+            <button type="button" id="btn-demo-patient" class="btn-demo-pill">
+              🧑‍💼 Demo Patient
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- SIGN UP FORM (MONGODB SYNCED) -->
+      <form id="signup-form" class="auth-form" style="display: none;" autocomplete="on" novalidate>
+        <div class="form-group">
+          <label for="signup-name" class="form-label">Full Name <span style="color: #ef4444;">*</span></label>
+          <div class="input-container">
+            <span class="input-icon">👤</span>
+            <input type="text" id="signup-name" class="neo-input" placeholder="e.g. Dr. Sarah Jenkins or Alex Vance" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="signup-email" class="form-label">Email Address <span style="color: #ef4444;">*</span></label>
+          <div class="input-container">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="signup-email" class="neo-input" placeholder="your.email@domain.com" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="signup-password" class="form-label">Password <span style="color: #ef4444;">*</span></label>
+            <div class="input-container">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="signup-password" class="neo-input" placeholder="Min 6 characters" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="signup-confirm-password" class="form-label">Confirm Password <span style="color: #ef4444;">*</span></label>
+            <div class="input-container">
+              <span class="input-icon">🛡️</span>
+              <input type="password" id="signup-confirm-password" class="neo-input" placeholder="Re-enter password" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Strength Meter -->
+        <div class="password-strength-container">
+          <div class="strength-bar-track">
+            <div id="signup-strength-bar" class="strength-bar-fill"></div>
+          </div>
+          <span id="signup-strength-text" class="strength-text">Password security level</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="signup-phone" class="form-label">Primary Contact Phone <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Strictly 10 digits, Optional)</span></label>
+          <div class="input-container">
+            <span class="input-icon">📞</span>
+            <input type="tel" id="signup-phone" class="neo-input" placeholder="10-digit mobile (e.g. 9876543210)" maxlength="10" inputmode="numeric" pattern="[0-9]{10}">
+          </div>
+        </div>
+
+        <!-- ROLE-SPECIFIC FIELDS: DOCTOR -->
+        <div id="doctor-specific-fields" style="display: none;">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="doc-specialization" class="form-label">Specialization / Department <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Select or choose Other)</span></label>
+            <div class="input-container">
+              <span class="input-icon">🩺</span>
+              <select id="doc-specialization" class="neo-select" onchange="window.AuthController && window.AuthController.handleDocSpecChange(this.value)">
+                <option value="Pediatric Immunization & Preventative Care">Pediatric Immunization & Preventative Care</option>
+                <option value="Pediatrics & Adolescent Medicine">Pediatrics & Adolescent Medicine</option>
+                <option value="Family Medicine & General Practice">Family Medicine & General Practice</option>
+                <option value="Internal Medicine">Internal Medicine</option>
+                <option value="Infectious Disease Specialist">Infectious Disease Specialist</option>
+                <option value="Allergy & Immunology">Allergy & Immunology</option>
+                <option value="Obstetrics & Gynecology (OB-GYN)">Obstetrics & Gynecology (OB-GYN)</option>
+                <option value="Cardiology & Vascular Medicine">Cardiology & Vascular Medicine</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Orthopedic Surgery & Sports Medicine">Orthopedic Surgery & Sports Medicine</option>
+                <option value="Pulmonology & Respiratory Care">Pulmonology & Respiratory Care</option>
+                <option value="Emergency & Critical Care Medicine">Emergency & Critical Care Medicine</option>
+                <option value="Public Health & Preventative Medicine">Public Health & Preventative Medicine</option>
+                <option value="Other">➕ Other / Custom Department (Name your own)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="doc-custom-spec-group" class="form-group" style="display: none; margin-bottom: 14px;">
+            <label for="doc-specialization-custom" class="form-label">Custom Department / Specialization Name <span style="color: var(--teal-700);">*</span></label>
+            <div class="input-container">
+              <span class="input-icon">✏️</span>
+              <input type="text" id="doc-specialization-custom" class="neo-input" placeholder="e.g. Neonatal Intensive Care, Pediatric Oncology, Rheumatology">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 14px;">
+            <div class="form-group">
+              <label for="doc-license" class="form-label">License / NPI Number <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+              <div class="input-container">
+                <span class="input-icon">🪪</span>
+                <input type="text" id="doc-license" class="neo-input" placeholder="e.g. NPI #8492019482">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="doc-hospital" class="form-label">Hospital / Healthcare Facility <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Select or choose Other)</span></label>
+              <div class="input-container">
+                <span class="input-icon">🏥</span>
+                <select id="doc-hospital" class="neo-select" onchange="window.AuthController && window.AuthController.handleDocHospitalChange(this.value)">
+                  <option value="Swedish Medical Center — Pediatric Specialty Clinic">Swedish Medical Center — Pediatric Specialty Clinic</option>
+                  <option value="Metro Children & Vaccine Center">Metro Children & Vaccine Center</option>
+                  <option value="UW Medicine Immunization & Primary Care">UW Medicine Immunization & Primary Care</option>
+                  <option value="Mayo Clinic Health System">Mayo Clinic Health System</option>
+                  <option value="Kaiser Permanente Medical Center">Kaiser Permanente Medical Center</option>
+                  <option value="City General Hospital & Immunization Clinic">City General Hospital & Immunization Clinic</option>
+                  <option value="Community Health & Wellness Center">Community Health & Wellness Center</option>
+                  <option value="Other">➕ Other / Custom Facility (Name your own)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="doc-custom-hospital-group" class="form-group" style="display: none; margin-bottom: 14px;">
+            <label for="doc-hospital-custom" class="form-label">Custom Facility / Hospital Name <span style="color: var(--teal-700);">*</span></label>
+            <div class="input-container">
+              <span class="input-icon">✏️</span>
+              <input type="text" id="doc-hospital-custom" class="neo-input" placeholder="e.g. Apollo Hospitals, St. Jude Children's Research Center">
+            </div>
+          </div>
+        </div>
+
+        <!-- ROLE-SPECIFIC FIELDS: PATIENT -->
+        <div id="patient-specific-fields">
+          <div class="form-row" style="margin-bottom: 14px;">
+            <div class="form-group">
+              <label for="pat-dob" class="form-label">Date of Birth <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+              <div class="input-container">
+                <span class="input-icon">📅</span>
+                <input type="date" id="pat-dob" class="neo-input">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="pat-bloodgroup" class="form-label">Blood Group <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+              <div class="input-container">
+                <span class="input-icon">🩸</span>
+                <select id="pat-bloodgroup" class="neo-select">
+                  <option value="" selected>Not specified</option>
+                  <option value="O+">O Positive (O+)</option>
+                  <option value="A+">A Positive (A+)</option>
+                  <option value="B+">B Positive (B+)</option>
+                  <option value="AB+">AB Positive (AB+)</option>
+                  <option value="O-">O Negative (O-)</option>
+                  <option value="A-">A Negative (A-)</option>
+                  <option value="B-">B Negative (B-)</option>
+                  <option value="AB-">AB Negative (AB-)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom: 14px;">
+            <div class="form-group">
+              <label for="pat-gender" class="form-label">Gender <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+              <div class="input-container">
+                <span class="input-icon">👤</span>
+                <select id="pat-gender" class="neo-select">
+                  <option value="" selected>Not specified</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other / Non-Binary</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="pat-emergency" class="form-label">Emergency Contact <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+              <div class="input-container">
+                <span class="input-icon">🚨</span>
+                <input type="text" id="pat-emergency" class="neo-input" placeholder="e.g. Jane Doe - 9876543210">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="signup-submit-btn" class="btn-primary-glow auth-submit-btn">
+          Create Patient Account
+        </button>
+      </form>
+
+      <!-- Security Badge -->
+      <footer class="security-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        🔒 Encrypted EHR Registry • HIPAA-Compliant Security
+      </footer>
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       SECTION 2: AUTHENTICATED RESPECTIVE DASHBOARD
+       ====================================================================== -->
+  <section id="dashboard-section" class="dashboard-page-wrapper" style="display: none;">
+    <div class="dashboard-container">
+
+      <!-- ==================================================================
+           A: DOCTOR'S CLINICIAN DASHBOARD
+           ================================================================== -->
+      <div id="doctor-dashboard-view" style="display: none;">
+        
+        <!-- Top Clinician Bar -->
+        <header class="portal-topbar">
+          <div class="portal-profile-wrap">
+            <div class="portal-avatar-box">🩺</div>
+            <div class="portal-title-block">
+              <h2>
+                <span id="doc-name-display">Dr. Sarah Jenkins, MD, FAAP</span>
+                <span class="portal-type-badge">CLINICIAN PORTAL</span>
+              </h2>
+              <div id="doc-subtitle" class="portal-subtitle">
+                Lead Pediatrician & Immunologist • NPI #8492019482 (WA Medical Board) • Swedish Medical Center — Pediatric Specialty Clinic
+              </div>
+            </div>
+          </div>
+
+          <div class="portal-topbar-actions">
+            <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+              ✏️ Edit Profile
+            </button>
+            <span class="live-sync-pill">
+              <span class="pulse-indicator" style="width: 7px; height: 7px;"></span>
+              Live EHR Sync
+            </span>
+            <button type="button" class="btn-secondary-neo btn-portal-logout" style="padding: 8px 16px; font-size: 0.82rem;">
+              Sign Out
+            </button>
+          </div>
+        </header>
+
+        <!-- Clinical Metric Summary Cards (Refined from Clinical Spec) -->
+        <div class="metrics-row" style="margin-top: 18px;">
+          <div class="metric-card card-blue">
+            <div class="metric-top">
+              <span class="metric-label">TOTAL PATIENT CASELOAD</span>
+              <span class="metric-icon-small">👥</span>
+            </div>
+            <div class="metric-number">
+              <span id="metric-caseload">5</span>
+              <small>Active Patients</small>
+            </div>
+            <div class="metric-subtext">Pediatric & Adult cohort registry</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-top">
+              <span class="metric-label">COHORT COMPLIANCE RATE</span>
+              <span class="metric-icon-small" style="color: var(--teal-600);">✅</span>
+            </div>
+            <div class="metric-number" id="metric-compliance">
+              62% <small>(36 verified doses)</small>
+            </div>
+            <div class="compliance-progress-bar">
+              <div class="compliance-progress-fill" style="width: 62%;"></div>
+            </div>
+          </div>
+
+          <div class="metric-card alert-red">
+            <div class="metric-top">
+              <span class="metric-label">OVERDUE RECALL REQUIRED</span>
+              <span class="metric-icon-small" style="color: #ef4444;">⚠️</span>
+            </div>
+            <div class="metric-number" style="color: #dc2626;">
+              <span id="metric-overdue">1</span>
+              <small>Lapsed Doses</small>
+            </div>
+            <div class="metric-subtext">Actionable patient recalls pending</div>
+          </div>
+
+          <div class="metric-card alert-orange">
+            <div class="metric-top">
+              <span class="metric-label">HIGH-RISK PATIENTS</span>
+              <span class="metric-icon-small" style="color: #f59e0b;">🛡️</span>
+            </div>
+            <div class="metric-number" style="color: #b45309;">
+              <span id="metric-highrisk">2</span>
+              <small>Premature / Allergies</small>
+            </div>
+            <div class="metric-subtext">Requires clinical verification</div>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls Bar -->
+        <div class="controls-bar" style="margin-top: 20px;">
+          <div class="search-box-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="patient-search-input" class="search-input" placeholder="Search patient name, MRN, vaccine, or allergy...">
+          </div>
+
+          <div class="filter-actions-right">
+            <button type="button" class="filter-pill active" data-filter="all">All Patients</button>
+            <button type="button" class="filter-pill" data-filter="overdue">Overdue Recalls</button>
+            <button type="button" class="filter-pill" data-filter="high-risk">High-Risk Only</button>
+            <button type="button" class="filter-pill" data-filter="today">Scheduled Today</button>
+            <button type="button" id="btn-open-schedule-modal" class="btn-primary-glow" style="padding: 9px 20px; font-size: 0.84rem;">
+              + Schedule Vaccine
+            </button>
+          </div>
+        </div>
+
+        <!-- Clinical Patient Roster Table -->
+        <div class="table-container-card" style="margin-top: 16px;">
+          <div class="clinical-table-wrapper">
+            <table class="clinical-table">
+              <thead>
+                <tr>
+                  <th>PATIENT LEGAL NAME & MRN</th>
+                  <th>DOB & AGE</th>
+                  <th>CLINICAL NOTES & ALLERGIES</th>
+                  <th>PROTOCOL</th>
+                  <th>VACCINATION DETAILS</th>
+                  <th>TIMESTAMP & SCHEDULED SLOT</th>
+                  <th style="text-align: right;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="patient-roster-body">
+                <!-- Dynamically populated from MongoDB Atlas -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==================================================================
+           B: PATIENT'S PERSONAL DASHBOARD
+           ================================================================== -->
+      <div id="patient-dashboard-view" style="display: none;">
+        
+        <!-- Top Patient Bar -->
+        <header class="portal-topbar">
+          <div class="portal-profile-wrap">
+            <div class="portal-avatar-box">💉</div>
+            <div class="portal-title-block">
+              <h2>
+                <span id="pat-name-display">--</span>
+                <span class="portal-type-badge">PATIENT PORTAL</span>
+              </h2>
+              <div id="pat-subtitle" class="portal-subtitle">
+                MRN: Pending • Personal Immunization Record
+              </div>
+            </div>
+          </div>
+
+          <div class="portal-topbar-actions">
+            <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+              ✏️ Edit Profile
+            </button>
+            <span class="live-sync-pill">
+              <span class="pulse-indicator" style="width: 7px; height: 7px;"></span>
+              Secure EHR Connected
+            </span>
+            <button type="button" class="btn-secondary-neo btn-portal-logout" style="padding: 8px 16px; font-size: 0.82rem;">
+              Sign Out
+            </button>
+          </div>
+        </header>
+
+        <!-- Top Demographic Characteristics & Medical Profile Card -->
+        <section class="patient-demographics-card neo-box" style="padding: 24px; margin-top: 20px;">
+          <div class="demographics-section-title" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.25rem;">📋</span>
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                Patient Demographic Details & Clinical Profile
+              </h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 6px 14px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">
+                ✏️ Edit Profile
+              </button>
+              <span class="status-pill status-administered" style="font-size: 0.76rem;">
+                🔒 Verified EHR Identity
+              </span>
+            </div>
+          </div>
+
+          <div class="demographics-grid">
+            <div class="demo-item">
+              <span class="demo-label">Date of Birth & Age</span>
+              <span id="pat-demo-dob-age" class="demo-value">--</span>
+              <span id="pat-demo-cohort-category" class="demo-value-sub">Not provided</span>
+            </div>
+
+            <div class="demo-item">
+              <span class="demo-label">Gender & Blood Group</span>
+              <span id="pat-demo-gender-blood" class="demo-value">--</span>
+              <span class="demo-value-sub">Verified Blood Compatibility</span>
+            </div>
+
+            <div class="demo-item">
+              <span class="demo-label">Primary Contact Phone</span>
+              <span id="pat-demo-phone" class="demo-value">--</span>
+              <span id="pat-demo-email" class="demo-value-sub">--</span>
+            </div>
+
+            <div class="demo-item">
+              <span class="demo-label">Alternative / Emergency Mobile</span>
+              <span id="pat-demo-alt-phone" class="demo-value">--</span>
+              <span id="pat-demo-emergency" class="demo-value-sub">Not provided</span>
+            </div>
+
+            <div class="demo-item" style="grid-column: span 2;">
+              <span class="demo-label">Residential Address</span>
+              <span id="pat-demo-address" class="demo-value">--</span>
+            </div>
+
+            <div class="demo-item" style="grid-column: span 2;">
+              <span class="demo-label">Insurance Carrier & Policy ID</span>
+              <span id="pat-demo-insurance" class="demo-value">--</span>
+            </div>
+          </div>
+
+          <!-- Allergic Items & Medical Conditions Banner (Rendered dynamically when on file) -->
+          <div class="clinical-alerts-banner" style="margin-top: 18px; padding-top: 16px;">
+            <div id="pat-alert-allergies" class="alert-chip-red" style="display: none;"></div>
+            <div id="pat-alert-conditions" class="alert-chip-amber" style="display: none;"></div>
+            <div id="pat-alert-clinic" class="alert-chip-green" style="display: none;"></div>
+          </div>
+        </section>
+
+        <!-- 2-Column Responsive Patient Workspace -->
+        <div class="patient-dashboard-grid" style="margin-top: 20px;">
+          
+          <!-- Left Column: Digital Vaccine Smart Pass -->
+          <div class="patient-sidebar-column">
+            
+            <div class="glowing-teal-card">
+              <div class="card-top-row">
+                <span class="card-title-text">DIGITAL VACCINE PASS</span>
+                <span class="card-chip-badge">VERIFIED EHR</span>
+              </div>
+              <div class="card-number-display" id="pat-card-mrn">--</div>
+              <div class="card-mid-row" style="display: flex; align-items: center; justify-content: space-between; margin: 10px 0;">
+                <div>
+                  <div class="card-holder-name" id="pat-card-name">--</div>
+                  <div id="pat-card-blood" style="font-size: 0.74rem; opacity: 0.95;">Blood Group: --</div>
+                  <div id="pat-card-category" style="font-size: 0.72rem; opacity: 0.9; margin-top: 2px;">Patient Record</div>
+                </div>
+                <!-- Interactive Scannable QR Graphic -->
+                <div class="pass-qr-box" title="Click to view/download official certificate" onclick="DashboardController.openCertificateModal()" style="background: white; padding: 6px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer;">
+                  <svg width="60" height="60" viewBox="0 0 100 100" fill="#042f2e">
+                    <rect x="0" y="0" width="30" height="30" fill="#042f2e" rx="4" />
+                    <rect x="6" y="6" width="18" height="18" fill="white" rx="2" />
+                    <rect x="10" y="10" width="10" height="10" fill="#042f2e" />
+                    <rect x="70" y="0" width="30" height="30" fill="#042f2e" rx="4" />
+                    <rect x="76" y="6" width="18" height="18" fill="white" rx="2" />
+                    <rect x="80" y="10" width="10" height="10" fill="#042f2e" />
+                    <rect x="0" y="70" width="30" height="30" fill="#042f2e" rx="4" />
+                    <rect x="6" y="76" width="18" height="18" fill="white" rx="2" />
+                    <rect x="10" y="80" width="10" height="10" fill="#042f2e" />
+                    <rect x="36" y="8" width="8" height="8" />
+                    <rect x="48" y="12" width="6" height="6" />
+                    <rect x="58" y="8" width="6" height="6" />
+                    <rect x="38" y="24" width="8" height="8" />
+                    <rect x="52" y="24" width="8" height="6" />
+                    <rect x="8" y="38" width="8" height="6" />
+                    <rect x="22" y="44" width="6" height="6" />
+                    <rect x="36" y="38" width="6" height="6" />
+                    <rect x="48" y="44" width="8" height="8" />
+                    <rect x="62" y="38" width="6" height="6" />
+                    <rect x="78" y="44" width="6" height="6" />
+                    <rect x="88" y="38" width="6" height="6" />
+                    <rect x="14" y="54" width="6" height="6" />
+                    <rect x="36" y="56" width="8" height="8" />
+                    <rect x="50" y="58" width="6" height="6" />
+                    <rect x="68" y="54" width="8" height="6" />
+                    <rect x="84" y="58" width="6" height="6" />
+                    <rect x="38" y="72" width="6" height="8" />
+                    <rect x="52" y="74" width="8" height="6" />
+                    <rect x="68" y="72" width="8" height="8" />
+                    <rect x="84" y="78" width="8" height="8" />
+                    <rect x="42" y="86" width="6" height="6" />
+                    <rect x="56" y="88" width="8" height="6" />
+                  </svg>
+                </div>
+              </div>
+              <div class="card-bottom-row" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <span style="font-size: 0.72rem; opacity: 0.9;">EHR Cryptographic ID: #IMM-9042</span>
+                  <span class="card-valid-date">VALID 12/28</span>
+                </div>
+                <button type="button" id="btn-export-vaccine-certificate" class="btn-cert-export" onclick="DashboardController.openCertificateModal()" style="width: 100%; margin-top: 4px;">
+                  <span>📜</span> View / Download Official PDF Certificate
+                </button>
+              </div>
+            </div>
+
+            <div class="neo-box" style="padding: 20px;">
+              <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
+                Immunization Health Summary
+              </h4>
+              <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                  <span style="color: var(--text-muted);">Compliance Score:</span>
+                  <strong style="color: #047857;" id="pat-summary-compliance">0%</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
+                  <span style="color: var(--text-muted);">Total Doses Administered:</span>
+                  <strong id="pat-summary-doses">0 Doses</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Attending Physician:</span>
+                  <strong id="pat-summary-physician">Unassigned</strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Upcoming & Completed Immunization History -->
+          <div class="patient-main-column">
+            
+            <!-- Upcoming Schedule Card -->
+            <div class="neo-box" style="padding: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                    📅 Upcoming Scheduled Doses
+                  </h3>
+                  <span id="patient-upcoming-count" class="status-pill status-scheduled">0 Scheduled</span>
+                </div>
+                <button type="button" id="btn-patient-open-schedule" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                  ➕ Schedule New Vaccine
+                </button>
+              </div>
+
+              <!-- Google Calendar Pinpoint Notification Banner -->
+              <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem; color: var(--text-main);">
+                ⏰ <strong>Google Calendar Reminders:</strong> Click <strong>"Add to Google Calendar"</strong> on any vaccine below to schedule automated reminders that alert you before the appointment and at the exact pinpoint time!
+              </div>
+
+              <div id="patient-upcoming-list">
+                <!-- Dynamically populated with Google Calendar button -->
+              </div>
+            </div>
+
+            <!-- Past Completed Records -->
+            <div class="neo-box" style="padding: 24px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 0;">
+                  📜 Verified Administered Vaccines (Completed History)
+                </h3>
+                <span id="patient-administered-count" class="status-pill status-administered">0 Verified Doses</span>
+              </div>
+              <div class="clinical-table-wrapper">
+                <table class="clinical-table">
+                  <thead>
+                    <tr>
+                      <th>VACCINE & LOT</th>
+                      <th>DOSE</th>
+                      <th>DATE & TIMESTAMP</th>
+                      <th>CLINIC / FACILITY</th>
+                      <th>VERIFICATION</th>
+                    </tr>
+                  </thead>
+                  <tbody id="patient-history-body">
+                    <!-- Dynamically populated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       MODAL: PATIENT SCHEDULE NEW VACCINE (MONGODB & GOOGLE CALENDAR)
+       ====================================================================== -->
+  <div id="patient-schedule-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card">
+      <div class="modal-header">
+        <h3>💉 Schedule Vaccination Appointment</h3>
+        <button type="button" id="btn-close-patient-schedule-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 18px; font-size: 0.8rem; color: var(--text-main);">
+        ⏰ <strong>Automatic Reminders:</strong> Once scheduled, click the Google Calendar button to configure automatic alerts as the time nears and at the pinpoint of time.
+      </div>
+
+      <form id="patient-new-schedule-form" class="auth-form">
+        <div class="form-group">
+          <label for="pat-sched-vaccine" class="form-label">Select Vaccine / Immunization</label>
+          <select id="pat-sched-vaccine" class="neo-select" required onchange="DashboardController.handlePatientVaccineSelectChange(this.value)">
+            <option value="">-- Choose Recommended Vaccine --</option>
+            <option value="Annual Influenza Quadrivalent (Fluarix)">Annual Influenza Quadrivalent (Flu Shot)</option>
+            <option value="COVID-19 Updated Booster (Comirnaty/Spikevax)">COVID-19 Updated Booster</option>
+            <option value="MMR Booster (Measles, Mumps, Rubella)">MMR Booster (Measles, Mumps, Rubella)</option>
+            <option value="Tdap Booster (Tetanus, Diphtheria, Pertussis)">Tdap Booster (Tetanus, Diphtheria, Pertussis)</option>
+            <option value="HPV 9-Valent (Gardasil 9)">HPV 9-Valent (Gardasil 9)</option>
+            <option value="Varivax (Chickenpox / Varicella)">Varivax (Varicella / Chickenpox)</option>
+            <option value="Hepatitis A / B Booster">Hepatitis A / B Booster</option>
+            <option value="Meningococcal ACWY (Menveo)">Meningococcal ACWY (Menveo)</option>
+            <option value="Pneumococcal (Prevnar 20)">Pneumococcal (Prevnar 20)</option>
+            <option value="Travel Yellow Fever / Typhoid Vaccine">Travel Yellow Fever / Typhoid Vaccine</option>
+            <option value="Other">➕ Other / Custom Vaccine (Type your own)</option>
+          </select>
+        </div>
+
+        <div id="pat-custom-vaccine-group" class="form-group" style="display: none;">
+          <label for="pat-sched-custom-vaccine" class="form-label">Custom Vaccine Name <span style="color: var(--teal-700); font-weight: normal;">*</span></label>
+          <input type="text" id="pat-sched-custom-vaccine" class="neo-input" placeholder="Enter custom vaccine (e.g. Shingrix, Rabies, Japanese Encephalitis)">
+        </div>
+
+        <div class="form-group">
+          <label for="pat-sched-vaccine-desc" class="form-label">Describe Your Vaccine / Notes <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Scope to describe composition, target condition, reason, or manufacturer)</span></label>
+          <textarea id="pat-sched-vaccine-desc" class="neo-input" rows="2" placeholder="e.g. 2-dose recombinant booster for older adult protection; recommended prior to upcoming international travel..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pat-sched-dose" class="form-label">Dose Number / Stage</label>
+            <select id="pat-sched-dose" class="neo-select" required>
+              <option value="Dose 1 (Primary)">Dose 1 (Primary)</option>
+              <option value="Dose 2 (Follow-up)">Dose 2 (Follow-up)</option>
+              <option value="Booster Dose">Booster Dose</option>
+              <option value="Annual Routine Slot">Annual Routine Slot</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pat-sched-clinic" class="form-label">Preferred Clinic / Center</label>
+            <select id="pat-sched-clinic" class="neo-select">
+              <option value="Swedish Medical Center — Pediatric Specialty Clinic">Swedish Medical Center — Pediatric Clinic</option>
+              <option value="Metro Children & Vaccine Center">Metro Children & Vaccine Center</option>
+              <option value="UW Medicine Immunization Health">UW Medicine Immunization Health</option>
+              <option value="Swedish Travel Medicine Clinic">Swedish Travel Medicine Clinic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pat-sched-date" class="form-label">Appointment Date</label>
+            <input type="date" id="pat-sched-date" class="neo-input" required>
+          </div>
+          <div class="form-group">
+            <label for="pat-sched-time" class="form-label">Preferred Time Slot</label>
+            <input type="time" id="pat-sched-time" class="neo-input" value="10:30" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pat-sched-notes" class="form-label">Notes for Attending Physician / Special Requests</label>
+          <input type="text" id="pat-sched-notes" class="neo-input" placeholder="e.g. Mild egg allergy, request preservative-free vaccine">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button type="button" id="btn-cancel-patient-schedule" class="btn-secondary-neo">Cancel</button>
+          <button type="submit" class="btn-primary-glow">📅 Confirm Appointment & Set Reminder</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: SCHEDULE NEW VACCINE (MONGODB)
+       ====================================================================== -->
+  <div id="schedule-vaccine-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card">
+      <div class="modal-header">
+        <h3>💉 Schedule Patient Vaccination</h3>
+        <button type="button" id="btn-close-schedule-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <form id="new-schedule-form" class="auth-form" autocomplete="off">
+        <input type="hidden" id="sched-patient-id" value="">
+        <div class="form-group">
+          <label for="sched-patient-name" class="form-label">Patient Legal Name</label>
+          <input type="text" id="sched-patient-name" class="neo-input" placeholder="e.g. Miller, Sophia" autocomplete="off" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sched-dob" class="form-label">Date of Birth</label>
+            <input type="date" id="sched-dob" class="neo-input" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="sched-gender" class="form-label">Gender</label>
+            <select id="sched-gender" class="neo-select">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sched-blood" class="form-label">Blood Group</label>
+            <select id="sched-blood" class="neo-select">
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sched-allergies" class="form-label">Allergies / Clinical Notes</label>
+            <input type="text" id="sched-allergies" class="neo-input" placeholder="e.g. Neomycin or None" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sched-email" class="form-label">Patient Email <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional for Email Recall)</span></label>
+            <input type="email" id="sched-email" class="neo-input" placeholder="e.g. sophia.miller@gmail.com" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="sched-phone" class="form-label">Contact Mobile <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(10 digits for WhatsApp/SMS)</span></label>
+            <input type="tel" id="sched-phone" class="neo-input" placeholder="10-digit mobile (e.g. 9876543210)" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="sched-emergency" class="form-label">Emergency Contact <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></label>
+          <input type="text" id="sched-emergency" class="neo-input" placeholder="e.g. Jane Doe - 9876543210" autocomplete="off">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sched-vaccine" class="form-label">Vaccine Name <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Select preset or type custom)</span></label>
+            <input type="text" id="sched-vaccine" list="doctor-vaccine-presets" class="neo-input" placeholder="Type or select vaccine (e.g. MMR II, Rotarix, Custom...)" autocomplete="off" required>
+            <datalist id="doctor-vaccine-presets">
+              <option value="MMR II (Measles, Mumps, Rubella)">
+              <option value="DTaP (Infanrix) - Diphtheria, Tetanus, Pertussis">
+              <option value="Inactivated Polio (IPOL)">
+              <option value="Hepatitis B (Recombivax HB)">
+              <option value="Pneumococcal Conjugate (Prevnar 20)">
+              <option value="Rotavirus (Rotarix / RotaTeq)">
+              <option value="Annual Influenza Quadrivalent (Fluarix)">
+              <option value="COVID-19 Updated Booster (Comirnaty)">
+              <option value="Varivax (Varicella)">
+              <option value="Meningococcal ACWY (Menveo)">
+              <option value="HPV 9-Valent (Gardasil 9)">
+              <option value="Shingrix (Zoster Vaccine Recombinant)">
+              <option value="Rabies Imovax Vaccine">
+              <option value="BCG Tuberculosis Vaccine">
+              <option value="Typhoid Vi Polysaccharide (Typhim Vi)">
+            </datalist>
+          </div>
+          <div class="form-group">
+            <label for="sched-dose" class="form-label">Dose Number / Stage</label>
+            <input type="text" id="sched-dose" class="neo-input" placeholder="e.g. Dose 2 Booster" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sched-vaccine-desc" class="form-label">Vaccine Description / Clinical Notes <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Scope to describe composition, dosage, or clinical indications)</span></label>
+          <textarea id="sched-vaccine-desc" class="neo-input" rows="2" placeholder="e.g. Recombinant subunit vaccine targeting glycoprotein E; 0.5 mL IM anterolateral thigh; monitor for 15 mins post administration..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sched-date" class="form-label">Scheduled Date</label>
+            <input type="date" id="sched-date" class="neo-input" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label for="sched-time" class="form-label">Time Slot</label>
+            <input type="time" id="sched-time" class="neo-input" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button type="button" id="btn-cancel-schedule" class="btn-secondary-neo">Cancel</button>
+          <button type="submit" class="btn-primary-glow">Confirm & Schedule Vaccination</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: COMPREHENSIVE CLINICAL PATIENT CHART (DEMOGRAPHICS & VACCINES)
+       ====================================================================== -->
+  <div id="patient-chart-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card chart-modal-dialog">
+      
+      <!-- Top Header -->
+      <div class="chart-header-row">
+        <div class="chart-title-left">
+          <div id="chart-avatar-badge" class="chart-avatar-initials">--</div>
+          <div class="chart-name-block">
+            <h2>
+              <span id="chart-patient-name">--</span>
+              <span id="chart-patient-mrn" class="chart-mrn-badge">--</span>
+            </h2>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px;">
+              Protocol: <strong id="chart-patient-protocol" style="color: var(--teal-700);">--</strong> • Supervising: <span id="chart-supervising-doc">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-header-actions">
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenEditFromChart()" style="padding: 7px 16px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">
+            ✏️ Edit Patient Info & Schedule
+          </button>
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenShareModalFromChart()" style="padding: 7px 16px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">
+            📤 Share Vaccine Notice (GMail / WhatsApp / SMS)
+          </button>
+          <button type="button" class="btn-secondary-neo" onclick="window.print()" style="padding: 7px 16px; font-size: 0.8rem;">
+            🖨️ Print Summary
+          </button>
+          <button type="button" id="btn-close-chart-modal" class="neo-circle-btn" style="width: 36px; height: 36px;">&times;</button>
+        </div>
+      </div>
+
+      <!-- SECTION 1: DEMOGRAPHIC CHARACTERISTICS -->
+      <section class="demographics-container-card">
+        <div class="demographics-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>📋 Demographic Characteristics & Baseline Information</span>
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenEditFromChart()" style="padding: 4px 12px; font-size: 0.76rem; font-weight: 600;">
+            ✏️ Edit Patient Info
+          </button>
+        </div>
+
+        <div class="demographics-grid">
+          <div class="demo-item">
+            <span class="demo-label">Date of Birth & Age</span>
+            <span id="chart-demo-dob-age" class="demo-value">--</span>
+            <span id="chart-demo-cohort-category" class="demo-value-sub">Not provided</span>
+          </div>
+
+          <div class="demo-item">
+            <span class="demo-label">Gender & Blood Group</span>
+            <span id="chart-demo-gender-blood" class="demo-value">--</span>
+            <span id="chart-demo-gestational" class="demo-value-sub" style="display: none;"></span>
+          </div>
+
+          <div class="demo-item">
+            <span class="demo-label">Patient Email</span>
+            <span id="chart-demo-email" class="demo-value">--</span>
+            <span class="demo-value-sub">Verified Email Contact</span>
+          </div>
+
+          <div class="demo-item">
+            <span class="demo-label">Primary Contact Phone</span>
+            <span id="chart-demo-phone" class="demo-value">--</span>
+            <span class="demo-value-sub">Primary Patient Line</span>
+          </div>
+
+          <div class="demo-item">
+            <span class="demo-label">Alternative / Emergency Mobile</span>
+            <span id="chart-demo-alt-phone" class="demo-value">--</span>
+            <span id="chart-demo-emergency" class="demo-value-sub">Not provided</span>
+          </div>
+
+          <div class="demo-item" style="grid-column: span 2;">
+            <span class="demo-label">Residential Address</span>
+            <span id="chart-demo-address" class="demo-value">--</span>
+          </div>
+
+          <div class="demo-item" style="grid-column: span 2;">
+            <span class="demo-label">Insurance Carrier & Policy ID</span>
+            <span id="chart-demo-insurance" class="demo-value">--</span>
+          </div>
+        </div>
+
+        <!-- Clinical Alerts Banner -->
+        <div class="clinical-alerts-banner">
+          <div id="chart-alert-allergies" class="alert-chip-red" style="display: none;"></div>
+          <div id="chart-alert-risks" class="alert-chip-amber" style="display: none;"></div>
+          <div id="chart-alert-clinic" class="alert-chip-green" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: IMMUNIZATION COMPLIANCE & VACCINE SCHEDULE -->
+      <section>
+        <div class="chart-compliance-strip">
+          <div class="compliance-strip-left">
+            <div id="chart-compliance-percent" class="compliance-percent-pill">44%</div>
+            <div>
+              <strong style="font-size: 0.95rem; color: var(--text-main); display: block;">Cohort Immunization Progress</strong>
+              <span id="chart-doses-count" style="font-size: 0.8rem; color: var(--text-secondary);">4 of 9 CDC Recommended Doses Completed</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="width: 180px;">
+              <div class="compliance-progress-bar" style="height: 8px;">
+                <div id="chart-progress-fill" class="compliance-progress-fill" style="width: 44%;"></div>
+              </div>
+            </div>
+            <button type="button" id="btn-chart-add-dose" class="btn-secondary-neo" style="padding: 7px 14px; font-size: 0.8rem; font-weight: 700; color: var(--teal-700);">
+              ➕ Schedule Dose
+            </button>
+          </div>
+        </div>
+
+        <!-- 3-Way Tab Selector: All / Upcoming / Administered -->
+        <div class="chart-vaccine-tabs">
+          <div class="neo-segmented-control" style="max-width: 580px; padding: 4px;">
+            <button type="button" id="tab-chart-all" class="neo-segmented-option active" style="padding: 8px 16px; font-size: 0.82rem;">
+              ✨ Complete Record (Both)
+            </button>
+            <button type="button" id="tab-chart-pending" class="neo-segmented-option" style="padding: 8px 16px; font-size: 0.82rem;">
+              ⏳ Upcoming & Due (<span id="chart-pending-count">5</span>)
+            </button>
+            <button type="button" id="tab-chart-administered" class="neo-segmented-option" style="padding: 8px 16px; font-size: 0.82rem;">
+              ✅ Administered (<span id="chart-administered-count">4</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: Upcoming & Due Vaccines -->
+        <div id="chart-pending-section" class="chart-section-block">
+          <div class="chart-section-subtitle">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>📅 Upcoming & Due Vaccines</span>
+              <span class="chart-section-count-badge" id="chart-pending-badge">0 Due</span>
+            </div>
+            <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: 500;">
+              Clinician Action Required / Scheduled Timelines
+            </span>
+          </div>
+          <div id="chart-pending-container" class="chart-vaccines-container">
+            <!-- Dynamically populated from MongoDB Atlas -->
+          </div>
+        </div>
+
+        <!-- Section: Previous Administered Vaccines History -->
+        <div id="chart-administered-section" class="chart-section-block" style="margin-top: 24px;">
+          <div class="chart-section-subtitle">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>📜 Previous Administered Immunization History</span>
+              <span class="chart-section-count-badge green-badge" id="chart-administered-badge">0 Verified</span>
+            </div>
+            <span style="font-size: 0.76rem; color: #047857; font-weight: 600;">
+              Verified EHR Immunization Ledger
+            </span>
+          </div>
+          <div id="chart-administered-container" class="chart-vaccines-container">
+            <!-- Dynamically populated from MongoDB Atlas -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Actions -->
+      <div class="chart-bottom-controls" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.78rem; color: var(--text-muted);">
+            🔒 Verified Clinical Chart • Official EHR Record
+          </span>
+          <button type="button" id="btn-chart-delete-patient" class="btn-delete-patient-chart" style="background: rgba(239, 68, 68, 0.08); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm); padding: 7px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer;" onclick="DashboardController.handleDeleteActiveChartPatient()">
+            🗑️ Delete Patient Record
+          </button>
+        </div>
+        <button type="button" id="btn-chart-done" class="btn-primary-glow" style="padding: 10px 24px; font-size: 0.88rem;">
+          Close Chart View
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL: OFFICIAL VACCINATION CERTIFICATE & PDF EXPORT
+       ====================================================================== -->
+  <div id="certificate-modal" class="modal-overlay" style="display: none; z-index: 10600;">
+    <div class="modal-content-card" style="max-width: 760px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="border-bottom: 2px solid var(--teal-600); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">📜</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-main);">Official Immunization Certificate</h3>
+            <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted);">Verified Electronic Health Record (EHR) • Compliant with CDC & State Health Guidelines</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-cert-modal" class="neo-circle-btn" style="width: 34px; height: 34px;">&times;</button>
+      </div>
+
+      <!-- Printable Certificate Canvas -->
+      <div id="printable-certificate-sheet" class="cert-printable-area" style="background: white; border: 1px solid #cbd5e1; border-radius: 12px; padding: 24px; margin: 16px 0; color: #0f172a; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+        <!-- Clinic Official Letterhead -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f766e; padding-bottom: 14px; margin-bottom: 16px;">
+          <div>
+            <div id="cert-clinic-header" style="font-size: 1.25rem; font-weight: 800; color: #0f766e; letter-spacing: -0.3px;">IMMUTRACK CLINICAL IMMUNIZATION REGISTRY</div>
+            <div id="cert-clinic-sub" style="font-size: 0.82rem; font-weight: 600; color: #475569;">OFFICIAL VACCINATION RECORD & EHR VERIFICATION</div>
+            <div id="cert-clinic-addr" style="font-size: 0.75rem; color: #64748b;">Public Health & Preventative Medicine • State Immunization Information System (IIS)</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="cert-status-badge" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-size: 0.76rem; font-weight: 700; display: inline-block;">
+              🔒 VERIFIED RECORD
+            </div>
+            <div id="cert-issue-date" style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Issued: Oct 21, 2026</div>
+          </div>
+        </div>
+
+        <!-- Patient Demographics Section -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.82rem; margin-bottom: 18px;">
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Patient Name</span>
+            <strong id="cert-pat-name" style="font-size: 0.95rem; color: #0f172a;">--</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Medical Record # (MRN)</span>
+            <strong id="cert-pat-mrn" style="color: #0f766e; font-family: monospace;">--</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Date of Birth & Age</span>
+            <strong id="cert-pat-dob-age">--</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Gender & Blood Group</span>
+            <strong id="cert-pat-gender-blood">--</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Attending Clinician</span>
+            <strong id="cert-attending-doc">--</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 0.7rem; color: #64748b; text-transform: uppercase;">Clinical Classification</span>
+            <strong id="cert-pat-cohort">--</strong>
+          </div>
+        </div>
+
+        <!-- Verified Doses Table -->
+        <h4 style="font-size: 0.9rem; font-weight: 700; color: #0f766e; margin-bottom: 8px;">ADMINISTERED VACCINATIONS LEDGER</h4>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;">
+            <thead>
+              <tr style="background: #0f766e; color: white;">
+                <th style="padding: 8px 10px; border-radius: 4px 0 0 0;">Vaccine Product</th>
+                <th style="padding: 8px 10px;">Dose</th>
+                <th style="padding: 8px 10px;">Date Administered</th>
+                <th style="padding: 8px 10px;">Lot Number</th>
+                <th style="padding: 8px 10px; border-radius: 0 4px 0 0;">Administering Facility</th>
+              </tr>
+            </thead>
+            <tbody id="cert-doses-tbody">
+              <!-- Dynamically populated from completedHistory -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer Authentication & QR Validation -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 24px; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="border: 1px solid #cbd5e1; padding: 4px; border-radius: 6px; background: white;">
+              <svg width="54" height="54" viewBox="0 0 100 100" fill="#0f766e">
+                <rect x="0" y="0" width="30" height="30" fill="#0f766e" rx="3" />
+                <rect x="6" y="6" width="18" height="18" fill="white" rx="2" />
+                <rect x="10" y="10" width="10" height="10" fill="#0f766e" />
+                <rect x="70" y="0" width="30" height="30" fill="#0f766e" rx="3" />
+                <rect x="76" y="6" width="18" height="18" fill="white" rx="2" />
+                <rect x="80" y="10" width="10" height="10" fill="#0f766e" />
+                <rect x="0" y="70" width="30" height="30" fill="#0f766e" rx="3" />
+                <rect x="6" y="76" width="18" height="18" fill="white" rx="2" />
+                <rect x="10" y="80" width="10" height="10" fill="#0f766e" />
+                <rect x="36" y="12" width="6" height="6" />
+                <rect x="52" y="12" width="8" height="6" />
+                <rect x="38" y="38" width="8" height="8" />
+                <rect x="54" y="38" width="6" height="8" />
+                <rect x="68" y="38" width="8" height="6" />
+                <rect x="84" y="38" width="8" height="8" />
+                <rect x="36" y="58" width="6" height="6" />
+                <rect x="52" y="58" width="8" height="6" />
+                <rect x="68" y="72" width="8" height="8" />
+                <rect x="84" y="72" width="8" height="8" />
+              </svg>
+            </div>
+            <div style="font-size: 0.72rem; color: #64748b; line-height: 1.4;">
+              <div><strong>Cryptographic Verification:</strong> #WA-EHR-VALID-2026</div>
+              <div>Scan with any state or healthcare credential reader</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div id="cert-sign-doc" style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 1.3rem; color: #1e3a8a; border-bottom: 1px solid #94a3b8; display: inline-block; padding: 0 16px;">
+              Authorized Medical Officer
+            </div>
+            <div style="font-size: 0.72rem; color: #475569; margin-top: 2px;">Authorized Medical Officer Signature</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certificate Action Buttons -->
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+        <button type="button" id="btn-close-cert-secondary" class="btn-secondary-neo">Close</button>
+        <button type="button" class="btn-primary-glow" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: USER PROFILE & MEDICAL RECORD EDITING
+       ====================================================================== -->
+  <div id="user-profile-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3>✏️ Edit Profile & Contact Information</h3>
+        <button type="button" id="btn-close-profile-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 18px; font-size: 0.8rem; color: var(--text-main);">
+        💡 <strong>EHR Accuracy:</strong> Update your profile details, primary phone, or emergency mobile number to keep your clinical records up to date.
+      </div>
+
+      <form id="edit-profile-form" class="auth-form">
+        <!-- Common Profile Details -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="prof-fullname" class="form-label">Full Legal Name</label>
+            <input type="text" id="prof-fullname" class="neo-input" required>
+          </div>
+          <div class="form-group">
+            <label for="prof-email" class="form-label">Account Email (Verified)</label>
+            <input type="email" id="prof-email" class="neo-input" disabled style="opacity: 0.75; cursor: not-allowed;">
+          </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label for="prof-phone" class="form-label">Primary Contact Phone <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Strictly 10 digits, Optional)</span></label>
+            <input type="tel" id="prof-phone" class="neo-input" placeholder="10-digit mobile (e.g. 9876543210)" maxlength="10" inputmode="numeric" pattern="[0-9]{10}">
+          </div>
+          <div class="form-group">
+            <label for="prof-alt-phone" class="form-label">Emergency / Alt Mobile <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Strictly 10 digits, Optional)</span></label>
+            <input type="tel" id="prof-alt-phone" class="neo-input" placeholder="10-digit mobile (e.g. 9876543210)" maxlength="10" inputmode="numeric" pattern="[0-9]{10}">
+          </div>
+        </div>
+
+        <!-- Patient-Specific Profile Details -->
+        <div id="prof-patient-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prof-dob" class="form-label">Date of Birth</label>
+              <input type="date" id="prof-dob" class="neo-input">
+            </div>
+            <div class="form-group">
+              <label for="prof-gender" class="form-label">Biological Gender</label>
+              <select id="prof-gender" class="neo-select">
+                <option value="">-- Not specified --</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other / Non-Binary</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="prof-blood" class="form-label">Blood Group</label>
+              <select id="prof-blood" class="neo-select">
+                <option value="">-- Not specified --</option>
+                <option value="O+">O+</option>
+                <option value="A+">A+</option>
+                <option value="B+">B+</option>
+                <option value="AB+">AB+</option>
+                <option value="O-">O-</option>
+                <option value="A-">A-</option>
+                <option value="B-">B-</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prof-emergency-contact" class="form-label">Emergency Contact Name & Relation</label>
+            <input type="text" id="prof-emergency-contact" class="neo-input" placeholder="e.g. Vance, Eli (Father)">
+          </div>
+
+          <div class="form-group">
+            <label for="prof-address" class="form-label">Residential Address</label>
+            <input type="text" id="prof-address" class="neo-input" placeholder="Street, City, State ZIP">
+          </div>
+
+          <div class="form-group">
+            <label for="prof-insurance" class="form-label">Health Insurance Policy & Member ID</label>
+            <input type="text" id="prof-insurance" class="neo-input" placeholder="e.g. Premera BlueCross • ID #WA-884192">
+          </div>
+
+          <div class="form-group">
+            <label for="prof-allergies" class="form-label">Documented Allergies</label>
+            <input type="text" id="prof-allergies" class="neo-input" placeholder="e.g. Penicillin, Seasonal Pollen, or None">
+          </div>
+
+          <div class="form-group">
+            <label for="prof-conditions" class="form-label">Medical Conditions / Health Notes</label>
+            <input type="text" id="prof-conditions" class="neo-input" placeholder="e.g. Childhood Asthma (Mild Intermittent)">
+          </div>
+        </div>
+
+        <!-- Doctor-Specific Profile Details -->
+        <div id="prof-doctor-fields" style="display: none;">
+          <div class="form-group">
+            <label for="prof-specialization" class="form-label">Specialization / Department</label>
+            <input type="text" id="prof-specialization" class="neo-input" placeholder="Pediatric Immunization & Preventative Care">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prof-license" class="form-label">Medical License / NPI Number</label>
+              <input type="text" id="prof-license" class="neo-input" placeholder="NPI #8492019482">
+            </div>
+            <div class="form-group">
+              <label for="prof-hospital" class="form-label">Hospital / Assigned Clinic</label>
+              <input type="text" id="prof-hospital" class="neo-input" placeholder="Swedish Medical Center — Pediatric Specialty Clinic">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+          <button type="button" id="btn-cancel-profile" class="btn-secondary-neo">Cancel</button>
+          <button type="submit" id="btn-submit-profile" class="btn-primary-glow">💾 Save Profile Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: SHARE VACCINATION INFORMATION (GMAIL, WHATSAPP, SMS, ALL APPS)
+       ====================================================================== -->
+  <div id="share-vaccine-modal" class="modal-overlay" style="display: none; z-index: 25000 !important;">
+    <div class="modal-content-card" style="max-width: 620px; max-height: 92vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.4rem;">📤</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-main);">Share Vaccine Notice & Clinical Record</h3>
+            <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted);">Directly dispatch auto-filled vaccination details via GMail, WhatsApp, SMS, or any device platform</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-share-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div id="share-target-card" style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 12px 14px; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-main);">
+        <div id="share-target-info" style="font-size: 0.92rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+          --
+        </div>
+        <div id="share-target-sub" style="font-size: 0.78rem; color: var(--text-secondary);">
+          Auto-filling patient profile contact channels below for instant one-click sharing
+        </div>
+      </div>
+
+      <!-- Auto-filled Patient Contact Channels -->
+      <div class="form-row" style="margin-bottom: 12px;">
+        <div class="form-group">
+          <label for="share-patient-email" class="form-label">Patient GMail / Email <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: normal;">(Auto-filled)</span></label>
+          <input type="email" id="share-patient-email" class="neo-input" placeholder="e.g. patient@gmail.com">
+        </div>
+        <div class="form-group">
+          <label for="share-patient-phone" class="form-label">Patient Mobile Number <span style="font-size: 0.74rem; color: var(--teal-700); font-weight: 700;">(Direct chat with unsaved numbers)</span></label>
+          <div style="display: flex; gap: 8px;">
+            <select id="share-country-code" class="neo-select" style="max-width: 105px; font-weight: 700; padding: 8px 10px; border-radius: var(--radius-sm);" title="Country Code">
+              <option value="91" selected>🇮🇳 +91</option>
+              <option value="1">🇺🇸 +1</option>
+              <option value="44">🇬🇧 +44</option>
+              <option value="971">🇦🇪 +971</option>
+              <option value="61">🇦🇺 +61</option>
+              <option value="65">🇸🇬 +65</option>
+              <option value="966">🇸🇦 +966</option>
+              <option value="49">🇩🇪 +49</option>
+              <option value="33">🇫🇷 +33</option>
+              <option value="custom">Other</option>
+            </select>
+            <input type="tel" id="share-patient-phone" class="neo-input" style="flex: 1;" placeholder="10-digit mobile" maxlength="15">
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-filled Message Content -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label for="share-message-body" class="form-label" style="margin: 0;">Vaccine Information & Clinical Notice <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Auto-filled & Fully Editable)</span></label>
+          <button type="button" id="btn-copy-share-text" style="background: none; border: none; font-size: 0.76rem; color: var(--teal-700); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Text
+          </button>
+        </div>
+        <textarea id="share-message-body" class="neo-input" rows="7" style="font-size: 0.82rem; line-height: 1.45;"></textarea>
+      </div>
+
+      <!-- Platform Connectors Grid with Authentic Original Logos -->
+      <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <span>Select Sharing Platform:</span>
+        <span style="font-size: 0.72rem; color: var(--teal-700); font-weight: 600;">⚡ No contact save required</span>
+      </div>
+      <div class="share-grid">
+        <!-- Original Google GMail Logo -->
+        <button type="button" id="btn-share-gmail" class="btn-platform-share btn-share-gmail" title="Open official Google GMail composer">
+          <svg class="share-brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 5.5V18.5C22 19.88 20.88 21 19.5 21H18V10.2L12 14.7L6 10.2V21H4.5C3.12 21 2 19.88 2 18.5V5.5C2 4.25 3.39 3.5 4.43 4.28L12 9.95L19.57 4.28C20.61 3.5 22 4.25 22 5.5Z" fill="#EA4335"/>
+            <path d="M18 21V10.2L22 7.2V18.5C22 19.88 20.88 21 19.5 21H18Z" fill="#C5221F"/>
+            <path d="M2 18.5V7.2L6 10.2V21H4.5C3.12 21 2 19.88 2 18.5Z" fill="#C5221F"/>
+            <path d="M18 5L12 9.5L6 5V4.5C6 3.67 6.67 3 7.5 3H16.5C17.33 3 18 3.67 18 4.5V5Z" fill="#4285F4"/>
+            <path d="M2 5.5C2 4.25 3.39 3.5 4.43 4.28L6 5.46V10.2L2 7.2V5.5Z" fill="#FBBC04"/>
+            <path d="M22 5.5C22 4.25 20.61 3.5 19.57 4.28L18 5.46V10.2L22 7.2V5.5Z" fill="#34A853"/>
+          </svg>
+          <div class="share-btn-text-wrap">
+            <span class="share-btn-title">Open in GMail</span>
+            <span class="share-btn-sub">Official Web Composer</span>
+          </div>
+        </button>
+
+        <!-- Original WhatsApp Logo -->
+        <button type="button" id="btn-share-whatsapp" class="btn-platform-share btn-share-whatsapp" title="Directly opens a new WhatsApp chat with unsaved mobile number">
+          <svg class="share-brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#25D366"/>
+            <path d="M12.012 3.6A8.39 8.39 0 0 0 4.74 16.273L3.6 20.4l4.248-1.114a8.388 8.388 0 1 0 4.164-15.686zm4.896 11.832c-.2.564-1.164 1.08-1.608 1.128-.42.048-.96.072-1.548-.12a14.28 14.28 0 0 1-5.328-3.324 10.224 10.224 0 0 1-2.208-3.324c-.216-.54-.024-1.2.336-1.572.24-.252.54-.36.72-.36.144 0 .288.012.396.012.216.012.336.036.468.36.18.432.612 1.5.672 1.608.06.108.084.228.024.36-.072.132-.12.204-.228.324-.108.12-.228.252-.324.348-.12.108-.24.228-.108.456.132.228.588.972 1.26 1.572.864.768 1.596 1.008 1.824 1.116.228.108.36.096.492-.06.132-.156.576-.672.732-.9.156-.228.312-.192.528-.108.216.084 1.38.648 1.62.768.24.12.396.18.456.276.06.108.06.6-.144 1.164z" fill="#FFFFFF"/>
+          </svg>
+          <div class="share-btn-text-wrap">
+            <span class="share-btn-title">Chat on WhatsApp</span>
+            <span class="share-btn-sub">Direct Unsaved Chat</span>
+          </div>
+        </button>
+
+        <!-- Original WhatsApp Web Direct Logo -->
+        <button type="button" id="btn-share-whatsapp-web" class="btn-platform-share btn-share-wa-web" title="Directly opens WhatsApp Web on Desktop in a new tab">
+          <svg class="share-brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="#128C7E"/>
+            <path d="M19 4H5C3.89 4 3.01 4.89 3.01 6L3 18C3 19.11 3.89 20 5 20H19C20.11 20 21 19.11 21 18V6C21 4.89 20.11 4 19 4ZM19 18H5V8H19V18Z" fill="#FFFFFF"/>
+            <circle cx="8" cy="13" r="1.5" fill="#25D366"/>
+            <circle cx="12" cy="13" r="1.5" fill="#25D366"/>
+            <circle cx="16" cy="13" r="1.5" fill="#25D366"/>
+          </svg>
+          <div class="share-btn-text-wrap">
+            <span class="share-btn-title">WhatsApp Web</span>
+            <span class="share-btn-sub">Direct Browser Tab</span>
+          </div>
+        </button>
+
+        <!-- Original Google Messages / SMS Logo -->
+        <button type="button" id="btn-share-sms" class="btn-platform-share btn-share-sms" title="Directly opens native messaging app to compose to unsaved number">
+          <svg class="share-brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#1A73E8"/>
+            <path d="M12 4C7.58 4 4 7.23 4 11.2C4 13.23 4.93 15.06 6.4 16.33V20L9.94 18.06C10.6 18.28 11.29 18.4 12 18.4C16.42 18.4 20 15.17 20 11.2C20 7.23 16.42 4 12 4Z" fill="#FFFFFF"/>
+            <ellipse cx="8.4" cy="11.2" rx="1.2" ry="1.2" fill="#1A73E8"/>
+            <ellipse cx="12" cy="11.2" rx="1.2" ry="1.2" fill="#1A73E8"/>
+            <ellipse cx="15.6" cy="11.2" rx="1.2" ry="1.2" fill="#1A73E8"/>
+          </svg>
+          <div class="share-btn-text-wrap">
+            <span class="share-btn-title">Send SMS Text</span>
+            <span class="share-btn-sub">Direct Unsaved Message</span>
+          </div>
+        </button>
+
+        <!-- Original Universal Share Logo -->
+        <button type="button" id="btn-share-universal" class="btn-platform-share btn-share-universal" title="Share via device native share sheet (Telegram, Teams, etc.)">
+          <svg class="share-brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#7C3AED"/>
+            <circle cx="16" cy="8" r="2.2" fill="#FFFFFF"/>
+            <circle cx="7" cy="12" r="2.2" fill="#FFFFFF"/>
+            <circle cx="16" cy="16" r="2.2" fill="#FFFFFF"/>
+            <line x1="8.9" y1="13.1" x2="14.1" y2="15.1" stroke="#FFFFFF" stroke-width="1.8"/>
+            <line x1="14.1" y1="8.9" x2="8.9" y2="10.9" stroke="#FFFFFF" stroke-width="1.8"/>
+          </svg>
+          <div class="share-btn-text-wrap">
+            <span class="share-btn-title">Device Share</span>
+            <span class="share-btn-sub">All Other Apps</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Zero-Contact Required Notice Banner -->
+      <div style="margin-top: 14px; background: rgba(38, 185, 170, 0.07); border-radius: var(--radius-sm); border: 1px solid rgba(38, 185, 170, 0.25); padding: 10px 14px; font-size: 0.77rem; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.25rem;">⚡</span>
+        <div>
+          <strong>Direct Unsaved Dispatch:</strong> The patient does <em>not</em> need to be saved in your device address book. Clicking WhatsApp or SMS opens a brand-new chat conversation directly with this mobile number.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: EDIT PATIENT INFORMATION & SCHEDULED VACCINE (DOCTOR PORTAL)
+       ====================================================================== -->
+  <div id="edit-schedule-modal" class="modal-overlay" style="display: none; z-index: 22000 !important;">
+    <div class="modal-content-card" style="max-width: 680px; max-height: 92vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.35rem;">✏️</span>
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-main);">Edit Patient Information & Vaccine Schedule</h3>
+            <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted);">Update patient demographics, contact channels (GMail, mobile, emergency), and scheduled immunization details</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-edit-schedule-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem; color: var(--text-main);">
+        💡 <strong>Clinician EHR Control:</strong> All patient contact channels, clinical demographics, and scheduled vaccination dates synchronize immediately across the database, patient portal, and one-click share options.
+      </div>
+
+      <form id="edit-schedule-form" class="auth-form" autocomplete="off">
+        <input type="hidden" id="edit-sched-patient-id" value="">
+        <input type="hidden" id="edit-sched-dose-id" value="">
+
+        <!-- Patient Demographics Section -->
+        <div class="form-group">
+          <label for="edit-sched-patient-name" class="form-label">Patient Legal Name <span style="color: var(--teal-700);">*</span></label>
+          <input type="text" id="edit-sched-patient-name" class="neo-input" placeholder="e.g. Miller, Sophia" autocomplete="off" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-dob" class="form-label">Date of Birth</label>
+            <input type="date" id="edit-sched-dob" class="neo-input" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-gender" class="form-label">Gender</label>
+            <select id="edit-sched-gender" class="neo-select">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-blood" class="form-label">Blood Group</label>
+            <select id="edit-sched-blood" class="neo-select">
+              <option value="O+">O+</option>
+              <option value="A+">A+</option>
+              <option value="B+">B+</option>
+              <option value="AB+">AB+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-allergies" class="form-label">Allergies / Clinical Notes</label>
+            <input type="text" id="edit-sched-allergies" class="neo-input" placeholder="e.g. Neomycin or None" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Contact Channels Section: GMail, Mobile No, Emergency Mobile -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-email" class="form-label">Patient GMail / Email <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(For direct GMail sharing & alerts)</span></label>
+            <input type="email" id="edit-sched-email" class="neo-input" placeholder="e.g. sophia.miller@gmail.com" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-phone" class="form-label">Contact Mobile No <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(10 digits for WhatsApp/SMS)</span></label>
+            <input type="tel" id="edit-sched-phone" class="neo-input" placeholder="10-digit mobile (e.g. 9876543210)" maxlength="10" inputmode="numeric" pattern="[0-9]{10}" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="edit-sched-emergency" class="form-label">Emergency Mobile / Contact <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(e.g. Parent / Spouse Mobile)</span></label>
+          <input type="text" id="edit-sched-emergency" class="neo-input" placeholder="e.g. Jane Doe - 9876543210" autocomplete="off">
+        </div>
+
+        <!-- Scheduled Vaccine & Appointment Section -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-vaccine" class="form-label">Vaccine Name <span style="color: var(--teal-700);">*</span></label>
+            <input type="text" id="edit-sched-vaccine" list="doctor-vaccine-presets" class="neo-input" placeholder="Type or select vaccine (e.g. MMR II, Rotarix, Custom...)" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-dose" class="form-label">Dose Number / Stage <span style="color: var(--teal-700);">*</span></label>
+            <input type="text" id="edit-sched-dose" class="neo-input" placeholder="e.g. Dose 2 Booster" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-sched-desc" class="form-label">Vaccine Description / Clinical Notes <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Scope to describe composition, dosage, or indications)</span></label>
+          <textarea id="edit-sched-desc" class="neo-input" rows="2" placeholder="Clinical formulation notes, site, indications..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-date" class="form-label">Scheduled Date <span style="color: var(--teal-700);">*</span></label>
+            <input type="date" id="edit-sched-date" class="neo-input" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-time" class="form-label">Time Slot <span style="color: var(--teal-700);">*</span></label>
+            <input type="time" id="edit-sched-time" class="neo-input" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-sched-status" class="form-label">Status Classification</label>
+            <select id="edit-sched-status" class="neo-select">
+              <option value="Scheduled">Scheduled (Upcoming)</option>
+              <option value="Overdue">⚠️ Overdue / Recall Required</option>
+              <option value="Confirmed Appointment">Confirmed Appointment</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="edit-sched-urgency" class="form-label">Clinical Urgency / Protocol</label>
+            <input type="text" id="edit-sched-urgency" class="neo-input" placeholder="e.g. Routine Interval, CDC Catch-Up, or Priority">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button type="button" id="btn-cancel-edit-schedule" class="btn-secondary-neo">Cancel</button>
+          <button type="submit" class="btn-primary-glow">💾 Save & Update Patient & Vaccine</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: RESCHEDULE & EDIT VACCINE APPOINTMENT (PATIENT PORTAL)
+       ====================================================================== -->
+  <div id="patient-edit-dose-modal" class="modal-overlay" style="display: none; z-index: 22000 !important;">
+    <div class="modal-content-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>✏️ Reschedule Vaccine Appointment</h3>
+        <button type="button" id="btn-close-pat-edit-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem; color: var(--text-main);">
+        🗓️ <strong>Flexible Rescheduling:</strong> Change your appointment date, preferred time slot, or notes for your attending healthcare provider.
+      </div>
+
+      <form id="patient-edit-dose-form" class="auth-form" autocomplete="off">
+        <input type="hidden" id="pat-edit-dose-id" value="">
+
+        <div class="form-group">
+          <label for="pat-edit-vaccine" class="form-label">Vaccine</label>
+          <input type="text" id="pat-edit-vaccine" class="neo-input" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pat-edit-dose" class="form-label">Dose / Stage</label>
+            <input type="text" id="pat-edit-dose" class="neo-input" required>
+          </div>
+          <div class="form-group">
+            <label for="pat-edit-clinic" class="form-label">Clinic Facility</label>
+            <select id="pat-edit-clinic" class="neo-select">
+              <option value="Swedish Medical Center — Pediatric Specialty Clinic">Swedish Medical Center — Pediatric Clinic</option>
+              <option value="Metro Children & Vaccine Center">Metro Children & Vaccine Center</option>
+              <option value="UW Medicine Immunization Health">UW Medicine Immunization Health</option>
+              <option value="Swedish Travel Medicine Clinic">Swedish Travel Medicine Clinic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pat-edit-date" class="form-label">New Appointment Date <span style="color: var(--teal-700);">*</span></label>
+            <input type="date" id="pat-edit-date" class="neo-input" required>
+          </div>
+          <div class="form-group">
+            <label for="pat-edit-time" class="form-label">Time Slot <span style="color: var(--teal-700);">*</span></label>
+            <input type="time" id="pat-edit-time" class="neo-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pat-edit-notes" class="form-label">Notes for Attending Physician / Special Requests</label>
+          <input type="text" id="pat-edit-notes" class="neo-input" placeholder="e.g. Rescheduled due to travel, please confirm morning slot">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+          <button type="button" id="btn-cancel-pat-edit" class="btn-secondary-neo">Cancel</button>
+          <button type="submit" class="btn-primary-glow">💾 Save & Reschedule Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      window.AuthController.init();
+    });
+  </script>
+</body>
+</html>

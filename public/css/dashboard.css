@@ -1,0 +1,1636 @@
+/* ==========================================================================
+   AUTHENTICATED DASHBOARD - CLINICAL DOCTOR & PATIENT PORTALS
+   Soft Neumorphic & Professional Clinical Aesthetic
+   ========================================================================== */
+
+.dashboard-page-wrapper {
+  min-height: 100vh;
+  padding: 24px 20px 60px;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+.dashboard-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==========================================================================
+   TOP CLINICIAN & PATIENT APP BAR
+   ========================================================================== */
+.portal-topbar {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.portal-profile-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.portal-avatar-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-teal);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 14px var(--teal-glow);
+  flex-shrink: 0;
+}
+
+.portal-title-block h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+
+.portal-type-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(38, 185, 170, 0.15);
+  color: var(--teal-700);
+}
+
+.portal-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.portal-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  box-shadow: var(--neo-inset-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--teal-700);
+}
+
+/* ==========================================================================
+   CLINICAL METRIC CARDS (ROW OF 4)
+   ========================================================================== */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 1100px) {
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 18px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 4px solid var(--teal-500);
+  transition: transform var(--transition-fast);
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neo-raised);
+}
+
+.metric-card.alert-red {
+  border-left-color: #ef4444;
+}
+
+.metric-card.alert-orange {
+  border-left-color: #f59e0b;
+}
+
+.metric-card.card-blue {
+  border-left-color: #0284c7;
+}
+
+.metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.metric-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+}
+
+.metric-icon-small {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.metric-number {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.1;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.metric-number small {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.metric-subtext {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.compliance-progress-bar {
+  margin-top: 8px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.compliance-progress-fill {
+  height: 100%;
+  background: var(--gradient-teal);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   FILTER & SEARCH CONTROLS BAR
+   ========================================================================== */
+.controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-box-wrap {
+  position: relative;
+  min-width: 320px;
+  flex: 1;
+  max-width: 480px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 11px 18px 11px 44px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  box-shadow: var(--neo-inset-sm);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  font-family: var(--font-family);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+  border-color: var(--teal-400);
+  box-shadow: var(--neo-inset-sm), 0 0 0 3px rgba(38, 185, 170, 0.2);
+}
+
+.filter-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: var(--bg-surface);
+  box-shadow: var(--neo-raised-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill:hover {
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.filter-pill.active {
+  background: #0f766e;
+  color: #ffffff;
+  border-color: #0f766e;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.35);
+}
+
+/* ==========================================================================
+   CLINICAL ROSTER TABLE
+   ========================================================================== */
+.table-container-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+
+.clinical-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.clinical-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.86rem;
+}
+
+.clinical-table th {
+  padding: 14px 18px;
+  background: rgba(226, 232, 240, 0.4);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.clinical-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  vertical-align: middle;
+}
+
+.clinical-table tr:hover td {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Patient Identity Column */
+.patient-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  margin: -4px -6px;
+  transition: all var(--transition-fast);
+}
+
+.patient-cell:hover {
+  background: rgba(38, 185, 170, 0.08);
+}
+
+.patient-cell:hover .patient-info-text strong {
+  color: var(--teal-700);
+  text-decoration: underline;
+}
+
+.avatar-badge-initials {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.patient-info-text strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.patient-info-text span {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+/* Age & DOB */
+.dob-cell strong {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+.dob-cell span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Risk Badges */
+.risk-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+.allergy-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.no-risk-tag {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Protocol */
+.protocol-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* Vaccine Details & Timestamp */
+.vaccine-cell strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.vaccine-cell span {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+/* Status Badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-scheduled {
+  background: rgba(14, 165, 233, 0.15);
+  color: #0369a1;
+}
+
+.status-overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.status-administered {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+/* Timestamp slot */
+.timestamp-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+/* Row Action Buttons */
+.action-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn-open-chart {
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: #0f766e;
+  color: #ffffff;
+  border: none;
+  font-family: var(--font-family);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-open-chart:hover {
+  background: #115e59;
+  transform: translateY(-1px);
+}
+
+.btn-action-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  background: var(--bg-surface);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.btn-action-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Elevated Syringe Action Button */
+.btn-action-administer {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  color: #0f766e;
+}
+
+.btn-action-administer:hover {
+  background: #ccfbf1;
+  border-color: #2dd4bf;
+  color: #042f2e;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.28);
+}
+
+/* Regular Dispatch Notification Button */
+.btn-action-recall {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.btn-action-recall:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+/* Active Warning Tone (Amber/Coral) for Overdue Patient Rows (e.g., Liam Chen) */
+.btn-recall-overdue {
+  background: #fff7ed !important;
+  border: 2px solid #fb923c !important;
+  color: #c2410c !important;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35) !important;
+  animation: overdue-pulse 2.2s infinite;
+}
+
+.btn-recall-overdue:hover {
+  background: #ffedd5 !important;
+  border-color: #f97316 !important;
+  color: #9a3412 !important;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.45) !important;
+  transform: translateY(-2px) scale(1.06);
+}
+
+/* Delete Action Buttons in Patient Roster Table */
+.btn-action-delete {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+.btn-action-delete:hover {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+  color: #b91c1c !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+  transform: translateY(-2px) scale(1.08) !important;
+}
+
+/* Delete / Remove Scheduled Dose Buttons in Chart */
+.btn-delete-pending-dose {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-delete-pending-dose:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+  color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+/* Delete / Cancel Appointment Button in Patient Portal */
+.btn-delete-patient-dose {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-delete-patient-dose:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+  color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.btn-delete-patient-chart {
+  transition: all var(--transition-fast);
+}
+
+.btn-delete-patient-chart:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  transform: translateY(-1px);
+}
+
+@keyframes overdue-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
+  }
+}
+
+/* Clean Sheet Empty Card */
+.clean-sheet-empty-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px dashed #99f6e4;
+  border-radius: var(--radius-md);
+  padding: 38px 24px;
+  text-align: center;
+  box-shadow: var(--neo-flat);
+  margin-top: 8px;
+}
+
+.clean-sheet-empty-card .empty-icon {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+}
+
+.clean-sheet-empty-card .empty-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.clean-sheet-empty-card .empty-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  max-width: 460px;
+  margin: 0 auto 18px;
+  line-height: 1.5;
+}
+
+/* Certificate Export Button on Pass */
+.btn-cert-export {
+  background: rgba(255, 255, 255, 0.95);
+  color: #042f2e;
+  border: 1.5px solid #99f6e4;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: all var(--transition-fast);
+}
+
+.btn-cert-export:hover {
+  background: #ffffff;
+  color: #0f766e;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+  transform: translateY(-1px);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #certificate-modal, #certificate-modal * {
+    visibility: visible;
+  }
+  #certificate-modal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background: white;
+  }
+  .modal-header, #btn-close-cert-secondary, .btn-primary-glow {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   PATIENT PERSONAL DASHBOARD
+   ========================================================================== */
+.patient-dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .patient-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.patient-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.patient-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Modal Layering & Stacking Hierarchy */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+#patient-chart-modal {
+  z-index: 10000 !important;
+}
+
+#schedule-vaccine-modal {
+  z-index: 20000 !important;
+}
+
+#patient-schedule-modal {
+  z-index: 20000 !important;
+}
+
+#user-profile-modal {
+  z-index: 10600 !important;
+}
+
+.modal-content-card {
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--neo-floating);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  padding: 28px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  padding-bottom: 14px;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================================================
+   PATIENT CLINICAL CHART MODAL (DEMOGRAPHICS & VACCINE SCHEDULE)
+   ========================================================================== */
+.chart-modal-dialog {
+  max-width: 1040px !important;
+  width: 95%;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  padding: 28px 32px !important;
+  border-radius: var(--radius-xl) !important;
+  background: var(--bg-surface);
+  box-shadow: var(--neo-floating);
+  scroll-behavior: smooth;
+}
+
+.chart-modal-dialog::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chart-modal-dialog::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+}
+
+.chart-modal-dialog::-webkit-scrollbar-thumb {
+  background: rgba(38, 185, 170, 0.4);
+  border-radius: 8px;
+}
+
+.chart-modal-dialog::-webkit-scrollbar-thumb:hover {
+  background: var(--teal-500);
+}
+
+.chart-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chart-title-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.chart-avatar-initials {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-teal);
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px var(--teal-glow);
+}
+
+.chart-name-block h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.2;
+}
+
+.chart-mrn-badge {
+  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.chart-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Demographics Section */
+.demographics-container-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--neo-inset-sm);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.demographics-section-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--teal-700);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demographics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 20px;
+}
+
+@media (max-width: 900px) {
+  .demographics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .demographics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.demo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.demo-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.demo-value {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.demo-value-sub {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+/* Clinical Alerts Bar */
+.clinical-alerts-banner {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.alert-chip-red {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.alert-chip-amber {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.alert-chip-green {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* Vaccine Compliance Overview Card */
+.chart-compliance-strip {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.compliance-strip-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.compliance-percent-pill {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--teal-700);
+}
+
+/* Vaccine Tabs & Lists */
+.chart-vaccine-tabs {
+  margin-bottom: 18px;
+}
+
+.chart-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chart-section-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(38, 185, 170, 0.08);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+  border-left: 4px solid var(--teal-600);
+}
+
+.chart-section-count-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(2, 132, 199, 0.15);
+  color: #0369a1;
+}
+
+.chart-section-count-badge.green-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.chart-vaccines-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vaccine-item-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  transition: all var(--transition-fast);
+  border-left: 5px solid var(--teal-500);
+}
+
+@keyframes redAlertPulse {
+  0% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 10px rgba(239, 68, 68, 0.4), inset 0 0 8px rgba(239, 68, 68, 0.08);
+    border-color: #ef4444;
+  }
+  50% {
+    box-shadow: 0 0 0 3px #dc2626, 0 0 24px rgba(239, 68, 68, 0.85), inset 0 0 14px rgba(239, 68, 68, 0.18);
+    border-color: #f87171;
+  }
+  100% {
+    box-shadow: 0 0 0 2px #ef4444, 0 0 10px rgba(239, 68, 68, 0.4), inset 0 0 8px rgba(239, 68, 68, 0.08);
+    border-color: #ef4444;
+  }
+}
+
+/* Overdue Alert: Glowing Red Colored Light on Borders */
+.vaccine-item-card.overdue-border,
+.overdue-red-glow,
+.patient-upcoming-card.overdue-border {
+  border: 2px solid #ef4444 !important;
+  border-left: 6px solid #dc2626 !important;
+  animation: redAlertPulse 2s infinite ease-in-out !important;
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%) !important;
+  position: relative;
+}
+
+.vaccine-cell.vaccine-overdue-glow {
+  border: 2px solid #ef4444 !important;
+  border-left: 5px solid #dc2626 !important;
+  box-shadow: 0 0 0 2px #ef4444, 0 0 16px rgba(239, 68, 68, 0.55), inset 0 0 8px rgba(239, 68, 68, 0.12) !important;
+  animation: redAlertPulse 2s infinite ease-in-out !important;
+  background: rgba(254, 242, 242, 0.9) !important;
+  padding: 8px 12px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.row-overdue-alert {
+  background: rgba(239, 68, 68, 0.035) !important;
+}
+
+/* Share & Edit Action Buttons in Table & Cards */
+.btn-action-share {
+  background: rgba(38, 185, 170, 0.08) !important;
+  color: var(--teal-700) !important;
+  border: 1px solid rgba(38, 185, 170, 0.25) !important;
+}
+
+.btn-action-share:hover {
+  background: var(--teal-600) !important;
+  color: white !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+}
+
+.btn-action-share.btn-share-overdue {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  animation: redAlertPulse 2s infinite ease-in-out !important;
+}
+
+.btn-action-share.btn-share-overdue:hover {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+.btn-action-edit {
+  background: rgba(14, 165, 233, 0.08) !important;
+  color: #0284c7 !important;
+  border: 1px solid rgba(14, 165, 233, 0.25) !important;
+}
+
+.btn-action-edit:hover {
+  background: #0284c7 !important;
+  color: white !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* Share Modal Platform Connectors */
+.share-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.btn-platform-share {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+.btn-platform-share:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.09);
+}
+
+.share-brand-logo {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.btn-platform-share:hover .share-brand-logo {
+  transform: scale(1.12);
+}
+
+.share-btn-text-wrap {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.share-btn-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.share-btn-sub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.btn-share-gmail {
+  border-color: rgba(234, 67, 53, 0.35);
+}
+
+.btn-share-gmail .share-btn-title {
+  color: #c5221f;
+}
+
+.btn-share-gmail:hover {
+  background: rgba(234, 67, 53, 0.04);
+  border-color: #EA4335;
+  box-shadow: 0 6px 18px rgba(234, 67, 53, 0.2);
+}
+
+.btn-share-whatsapp {
+  border-color: rgba(37, 211, 102, 0.45);
+}
+
+.btn-share-whatsapp .share-btn-title {
+  color: #075e54;
+}
+
+.btn-share-whatsapp:hover {
+  background: rgba(37, 211, 102, 0.06);
+  border-color: #25D366;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.22);
+}
+
+.btn-share-wa-web {
+  border-color: rgba(18, 140, 126, 0.4);
+}
+
+.btn-share-wa-web .share-btn-title {
+  color: #128C7E;
+}
+
+.btn-share-wa-web:hover {
+  background: rgba(18, 140, 126, 0.06);
+  border-color: #128C7E;
+  box-shadow: 0 6px 18px rgba(18, 140, 126, 0.2);
+}
+
+.btn-share-sms {
+  border-color: rgba(26, 115, 232, 0.35);
+}
+
+.btn-share-sms .share-btn-title {
+  color: #1a73e8;
+}
+
+.btn-share-sms:hover {
+  background: rgba(26, 115, 232, 0.06);
+  border-color: #1A73E8;
+  box-shadow: 0 6px 18px rgba(26, 115, 232, 0.22);
+}
+
+.btn-share-universal {
+  border-color: rgba(124, 58, 237, 0.35);
+}
+
+.btn-share-universal .share-btn-title {
+  color: #6d28d9;
+}
+
+.btn-share-universal:hover {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: #7C3AED;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.22);
+}
+
+.btn-share-copy {
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--neo-raised-sm);
+}
+
+.btn-share-copy:hover {
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+
+.vaccine-item-card.scheduled-border {
+  border-left-color: #0284c7;
+}
+
+.vaccine-item-card.administered-border {
+  border-left-color: #10b981;
+}
+
+.vaccine-item-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--neo-raised);
+}
+
+.vaccine-item-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.vaccine-item-title {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.vaccine-item-meta {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vaccine-item-notes {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.vaccine-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-administer-now {
+  background: var(--gradient-teal);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 9px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--teal-glow);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.btn-administer-now:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--teal-glow);
+}
+
+.chart-bottom-controls {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   PATIENT PORTAL ENHANCEMENTS & GOOGLE CALENDAR REMINDER INTEGRATION
+   ========================================================================== */
+.patient-demographics-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  transition: all var(--transition-fast);
+}
+
+.patient-upcoming-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-left: 5px solid var(--teal-500);
+  padding: 18px 22px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  transition: all var(--transition-fast);
+}
+
+.patient-upcoming-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neo-raised);
+}
+
+.patient-upcoming-card-info {
+  flex: 1;
+  min-width: 280px;
+}
+
+.btn-gcal-reminder {
+  background: #ffffff;
+  border: 1.5px solid #4285f4;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--neo-raised-sm);
+  padding: 9px 18px;
+  font-family: var(--font-family);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a73e8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-gcal-reminder:hover {
+  background: #1a73e8;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(66, 133, 244, 0.35);
+}
+
+.btn-gcal-reminder .gcal-icon {
+  font-size: 1.05rem;
+}
+
+.btn-gcal-reminder:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   DYNAMIC RESPONSIVE WINDOW RESIZING & ADAPTIVE VIEWPORTS
+   Ensures all elements fit perfectly regardless of window width / height
+   ========================================================================== */
+.table-container-card {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.clinical-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.clinical-table {
+  min-width: 840px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 0 8px;
+  }
+  .patient-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 860px) {
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .search-box-wrap {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  .filter-actions-right {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .portal-topbar {
+    padding: 14px 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .portal-profile-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+  .portal-topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-page-wrapper {
+    padding: 12px 8px 40px;
+  }
+  .chart-modal-dialog {
+    width: 98% !important;
+    max-height: 94vh !important;
+    padding: 18px 14px !important;
+    border-radius: var(--radius-md) !important;
+  }
+  .chart-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .chart-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chart-header-actions button {
+    flex: 1 1 auto;
+  }
+  .vaccine-item-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .vaccine-item-info {
+    min-width: 0;
+    width: 100%;
+  }
+  .vaccine-item-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .patient-upcoming-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .patient-upcoming-card-info {
+    min-width: 0;
+    width: 100%;
+  }
+  .chart-compliance-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .clinical-table th, .clinical-table td {
+    padding: 12px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+  .modal-overlay {
+    padding: 8px;
+  }
+  .modal-content-card {
+    padding: 20px 14px;
+    width: 100%;
+    max-height: 94vh;
+  }
+  .chart-bottom-controls {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .chart-bottom-controls button {
+    width: 100%;
+    justify-content: center;
+  }
+  .demographics-grid {
+    grid-template-columns: 1fr;
+  }
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+  .portal-title-block h2 {
+    font-size: 1rem;
+    flex-wrap: wrap;
+  }
+}
+

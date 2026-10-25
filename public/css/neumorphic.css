@@ -1,0 +1,380 @@
+/* ==========================================================================
+   NEUMORPHIC DESIGN SYSTEM - IMMUTRACK VACCINE SCHEDULER
+   Based on modern soft UI aesthetics with glowing cyan/teal gradients
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --bg-main: #eaf0f7;
+  --bg-surface: #edf3f9;
+  --bg-card: #eaf1f8;
+  --bg-card-alt: #f1f5fa;
+  
+  /* Neumorphic Shadow Tokens */
+  --shadow-light: #ffffff;
+  --shadow-dark: rgba(166, 180, 200, 0.5);
+  --shadow-dark-subtle: rgba(166, 180, 200, 0.3);
+  
+  /* Raised Surfaces */
+  --neo-raised-sm: 4px 4px 10px var(--shadow-dark-subtle), -4px -4px 10px var(--shadow-light);
+  --neo-raised: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light);
+  --neo-raised-lg: 12px 12px 28px var(--shadow-dark), -12px -12px 28px var(--shadow-light);
+  --neo-floating: 16px 20px 36px rgba(150, 166, 188, 0.4), -12px -12px 28px var(--shadow-light);
+  
+  /* Inset / Debossed Surfaces */
+  --neo-inset-sm: inset 2px 2px 5px var(--shadow-dark-subtle), inset -2px -2px 5px var(--shadow-light);
+  --neo-inset: inset 3px 3px 8px var(--shadow-dark-subtle), inset -3px -3px 8px var(--shadow-light);
+  --neo-inset-deep: inset 5px 5px 12px var(--shadow-dark), inset -5px -5px 12px var(--shadow-light);
+
+  /* Primary Accent: Vibrant Teal / Turquoise Cyan */
+  --teal-400: #4ed2cf;
+  --teal-500: #26b9aa;
+  --teal-600: #1ba093;
+  --teal-700: #128277;
+  --teal-glow: rgba(38, 185, 170, 0.45);
+  --gradient-teal: linear-gradient(135deg, #4ed2cf 0%, #22b8a8 55%, #189e90 100%);
+  --gradient-card-glow: linear-gradient(135deg, rgba(82, 222, 219, 0.9) 0%, rgba(32, 183, 172, 0.95) 100%);
+  
+  /* Text and Accents */
+  --text-main: #233548;
+  --text-secondary: #657b94;
+  --text-muted: #8fa0b5;
+  --text-white: #ffffff;
+  
+  /* Status Colors */
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+  --status-info: #0ea5e9;
+
+  /* Geometry */
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 36px;
+  --radius-pill: 9999px;
+  
+  /* Typography */
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Background Atmosphere */
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.7) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(78, 210, 207, 0.12) 0%, transparent 45%),
+              var(--bg-main);
+}
+
+/* Neumorphic Utility Classes */
+.neo-box {
+  background: var(--bg-surface);
+  box-shadow: var(--neo-raised);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  transition: all var(--transition-normal);
+}
+
+.neo-box-sm {
+  background: var(--bg-surface);
+  box-shadow: var(--neo-raised-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.neo-inset {
+  background: var(--bg-surface);
+  box-shadow: var(--neo-inset);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.neo-circle-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  box-shadow: var(--neo-raised-sm);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.neo-circle-btn:hover {
+  transform: translateY(-2px);
+  color: var(--teal-600);
+  box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+}
+
+.neo-circle-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--neo-inset-sm);
+}
+
+/* Primary Teal Pill Button */
+.btn-primary-glow {
+  background: var(--gradient-teal);
+  color: var(--text-white);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 14px 28px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px var(--teal-glow), var(--neo-raised-sm);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-glow::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.btn-primary-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(38, 185, 170, 0.6), var(--neo-raised);
+}
+
+.btn-primary-glow:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px var(--teal-glow);
+}
+
+.btn-primary-glow:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Secondary Neumorphic Button */
+.btn-secondary-neo {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-pill);
+  padding: 12px 22px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--neo-raised-sm);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary-neo:hover {
+  transform: translateY(-1px);
+  color: var(--teal-600);
+  box-shadow: 5px 5px 12px var(--shadow-dark-subtle), -5px -5px 12px var(--shadow-light);
+}
+
+.btn-secondary-neo:active {
+  transform: translateY(1px);
+  box-shadow: var(--neo-inset-sm);
+}
+
+/* Glowing Turquoise Card (Image 2 style) */
+.glowing-teal-card {
+  background: var(--gradient-card-glow);
+  border-radius: var(--radius-lg);
+  color: var(--text-white);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 32px rgba(38, 185, 170, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+}
+
+.glowing-teal-card::before {
+  content: '';
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  top: -40px;
+  right: -30px;
+  pointer-events: none;
+}
+
+.glowing-teal-card::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  bottom: -80px;
+  left: -40px;
+  pointer-events: none;
+}
+
+/* Neumorphic Segmented Control Pill (Role/Mode Toggle) */
+.neo-segmented-control {
+  background: var(--bg-surface);
+  box-shadow: var(--neo-inset-sm);
+  border-radius: var(--radius-pill);
+  padding: 6px;
+  display: flex;
+  position: relative;
+  gap: 6px;
+}
+
+.neo-segmented-option {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  z-index: 1;
+}
+
+.neo-segmented-option.active {
+  background: var(--gradient-teal);
+  color: var(--text-white);
+  box-shadow: 0 4px 14px var(--teal-glow);
+}
+
+.neo-segmented-option:not(.active):hover {
+  color: var(--text-main);
+}
+
+/* Neumorphic Toggle Switch (As in Image 2) */
+.neo-toggle-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 16px;
+  user-select: none;
+}
+
+.neo-switch {
+  position: relative;
+  width: 54px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.neo-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neo-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--bg-surface);
+  box-shadow: var(--neo-inset-sm);
+  border-radius: 34px;
+  transition: all var(--transition-normal);
+}
+
+.neo-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #cbd5e1;
+  box-shadow: var(--neo-raised-sm);
+  border-radius: 50%;
+  transition: all var(--transition-bounce);
+}
+
+.neo-switch input:checked + .neo-switch-slider {
+  background: var(--gradient-teal);
+}
+
+.neo-switch input:checked + .neo-switch-slider:before {
+  transform: translateX(26px);
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Subtle Micro-animations */
+@keyframes pulseTeal {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(38, 185, 170, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(38, 185, 170, 0); }
+}
+
+.pulse-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal-500);
+  animation: pulseTeal 2s infinite ease-in-out;
+}
