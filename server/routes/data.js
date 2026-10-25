@@ -393,6 +393,78 @@ function calculatePatientAge(dobInput) {
 }
 
 /**
+ * Helper: Determine if a scheduled vaccine dose is past its scheduled date and time
+ * In VaccineScheduler, a vaccine is ONLY marked 'Administered' when explicitly confirmed
+ * by clicking the Administer button. If the scheduled time has passed and it is still not administered,
+ * it automatically moves to the Overdue status and section.
+ */
+function isDoseOverdue(dose, now = new Date()) {
+  if (!dose) return false;
+  if (dose.status === 'Administered') return false;
+  if (dose.status === 'Overdue') return true;
+
+  // 1. Direct ISO timestamp
+  if (dose.scheduledTimestamp) {
+    const t = new Date(dose.scheduledTimestamp);
+    if (!isNaN(t.getTime())) {
+      return t < now;
+    }
+  }
+
+  // 2. scheduledDate + scheduledTime
+  if (dose.scheduledDate) {
+    let timeStr = dose.scheduledTime || '23:59';
+    let cleanTime = timeStr;
+    if (/am|pm/i.test(timeStr)) {
+      const match = timeStr.match(/(\d+):(\d+)\s*(am|pm)/i);
+      if (match) {
+        let h = parseInt(match[1], 10);
+        const m = match[2];
+        const isPm = match[3].toLowerCase() === 'pm';
+        if (isPm && h < 12) h += 12;
+        if (!isPm && h === 12) h = 0;
+        cleanTime = `${String(h).padStart(2, '0')}:${m}`;
+      }
+    }
+    if (cleanTime.length === 5) {
+      const combined = new Date(`${dose.scheduledDate}T${cleanTime}:00`);
+      if (!isNaN(combined.getTime())) {
+        return combined < now;
+      }
+    }
+    const dayOnly = new Date(`${dose.scheduledDate}T23:59:59`);
+    if (!isNaN(dayOnly.getTime())) {
+      return dayOnly < now;
+    }
+  }
+
+  // 3. scheduledDisplay parsing
+  if (dose.scheduledDisplay) {
+    if (/lapsed|overdue/i.test(dose.scheduledDisplay)) return true;
+    if (dose.scheduledDisplay.includes('Today')) {
+      const timeMatch = dose.scheduledDisplay.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (timeMatch) {
+        let h = parseInt(timeMatch[1], 10);
+        const m = parseInt(timeMatch[2], 10);
+        const isPm = timeMatch[3].toUpperCase() === 'PM';
+        if (isPm && h < 12) h += 12;
+        if (!isPm && h === 12) h = 0;
+        const target = new Date(now);
+        target.setHours(h, m, 0, 0);
+        return target < now;
+      }
+    }
+    const cleaned = dose.scheduledDisplay.replace('•', '').replace(/\(.*\)/, '').trim();
+    const parsed = new Date(cleaned);
+    if (!isNaN(parsed.getTime())) {
+      return parsed < now;
+    }
+  }
+
+  return false;
+}
+
+/**
  * GET /api/data/patients
  * Fetch all patients for authenticated clinician
  * Demo doctor sees demo patients; newly registered doctors only see their own added patients.
@@ -410,10 +482,38 @@ router.get('/patients', verifyToken, async (req, res) => {
 
     // Only demo doctor falls back to SEED_PATIENT_RECORDS if empty
     const rawRoster = isDemoDoctor && rawPatients.length === 0 ? SEED_PATIENT_RECORDS : rawPatients;
+    const now = new Date();
+
     const roster = rawRoster.map(p => {
       const cleanP = { ...p };
       delete cleanP._id;
       delete cleanP.__v;
+
+      // Dynamically evaluate overdue status for pending vaccines
+      let pendingList = Array.isArray(cleanP.pendingVaccines) ? cleanP.pendingVaccines.map(d => {
+        if (d.status !== 'Administered' && isDoseOverdue(d, now)) {
+          return {
+            ...d,
+            status: 'Overdue',
+            urgency: d.urgency && d.urgency.toLowerCase().includes('overdue') ? d.urgency : 'Action Required — Overdue'
+          };
+        }
+        return d;
+      }) : [];
+      cleanP.pendingVaccines = pendingList;
+
+      // Overall patient status: if not Administered, flag Overdue if pending doses or scheduled date/time has passed
+      const hasOverduePending = pendingList.some(d => d.status === 'Overdue');
+      const isOverallPassed = isDoseOverdue({
+        scheduledTimestamp: cleanP.scheduledTimestamp,
+        scheduledDisplay: cleanP.scheduledDateDisplay,
+        status: cleanP.status
+      }, now);
+
+      if ((hasOverduePending || isOverallPassed) && cleanP.status !== 'Administered') {
+        cleanP.status = 'Overdue';
+      }
+
       if (cleanP.dob) {
         const ageCalc = calculatePatientAge(cleanP.dob);
         return {
@@ -428,6 +528,7 @@ router.get('/patients', verifyToken, async (req, res) => {
 
     const totalCaseload = roster.length;
     const administeredCount = roster.filter(p => p.status === 'Administered').length;
+    const overdueCount = roster.filter(p => p.status === 'Overdue').length;
     const complianceRate = totalCaseload > 0 ? `${Math.round((administeredCount / totalCaseload) * 100)}%` : '0%';
 
     return res.json({
@@ -436,7 +537,7 @@ router.get('/patients', verifyToken, async (req, res) => {
       stats: {
         totalCaseload,
         complianceRate,
-        overdueRecalls: roster.filter(p => p.status === 'Overdue').length,
+        overdueRecalls: overdueCount,
         highRiskCount: roster.filter(p => p.riskFactors && p.riskFactors !== 'None').length,
         scheduledToday: roster.filter(p => p.scheduledDateDisplay && p.scheduledDateDisplay.includes('Today')).length
       }
@@ -462,6 +563,25 @@ router.get('/patients/:id/chart', verifyToken, async (req, res) => {
 
     delete rawPatient._id;
     delete rawPatient.__v;
+
+    const now = new Date();
+    // Dynamic Overdue evaluation for pending vaccines
+    let pendingList = Array.isArray(rawPatient.pendingVaccines) ? rawPatient.pendingVaccines.map(d => {
+      if (d.status !== 'Administered' && isDoseOverdue(d, now)) {
+        return {
+          ...d,
+          status: 'Overdue',
+          urgency: d.urgency && d.urgency.toLowerCase().includes('overdue') ? d.urgency : 'Action Required — Overdue'
+        };
+      }
+      return d;
+    }) : [];
+
+    rawPatient.pendingVaccines = pendingList;
+    const hasOverdue = pendingList.some(d => d.status === 'Overdue');
+    if (hasOverdue && rawPatient.status !== 'Administered') {
+      rawPatient.status = 'Overdue';
+    }
 
     const ageCalc = calculatePatientAge(rawPatient.dob);
     const patient = {
@@ -893,6 +1013,20 @@ router.get('/patient-me', verifyToken, async (req, res) => {
       upcomingDoses = Array.isArray(upcomingDoses) ? upcomingDoses : [];
       completedHistory = Array.isArray(completedHistory) ? completedHistory : [];
     }
+
+    const now = new Date();
+    // Dynamically evaluate overdue status: if scheduled date/time has passed and not administered, status becomes Overdue
+    upcomingDoses = upcomingDoses.map(dose => {
+      if (dose.status !== 'Administered' && isDoseOverdue(dose, now)) {
+        return {
+          ...dose,
+          status: 'Overdue',
+          isOverdue: true,
+          urgency: 'Action Required — Overdue'
+        };
+      }
+      return dose;
+    });
 
     // Dynamic age calculation based on user's actual DOB
     const dobValue = patientDetails.dob || (isDemoPatient ? '2020-03-12' : null);
@@ -1536,6 +1670,98 @@ router.put('/patient-me/doses/:doseId', verifyToken, async (req, res) => {
   } catch (err) {
     console.error('Edit patient appointment error:', err);
     res.status(500).json({ success: false, message: 'Could not reschedule appointment: ' + err.message });
+  }
+});
+
+/**
+ * POST /api/data/patient-me/doses/:doseId/administer
+ * Patient administers an upcoming/overdue dose themselves from the patient portal.
+ * Explicitly records administration timestamp, updates completedHistory, removes from upcoming,
+ * and synchronizes verified immunization records.
+ */
+router.post('/patient-me/doses/:doseId/administer', verifyToken, async (req, res) => {
+  try {
+    const { doseId } = req.params;
+    const user = await User.findOne({ uid: req.user.uid });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User account not found.' });
+    }
+
+    let upcoming = Array.isArray(user.upcomingDoses) ? [...user.upcomingDoses] : [];
+    let completed = Array.isArray(user.completedHistory) ? [...user.completedHistory] : [];
+
+    const doseIndex = upcoming.findIndex(d => String(d.id) === String(doseId));
+    if (doseIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Scheduled dose not found in upcoming schedule.' });
+    }
+
+    const targetDose = upcoming.splice(doseIndex, 1)[0];
+    const now = new Date();
+    const formattedTimestamp = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+      ' • ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    const newAdministered = {
+      id: `adm-pat-${Date.now()}`,
+      vaccine: targetDose.vaccine,
+      disease: targetDose.disease || targetDose.vaccine,
+      dose: targetDose.dose,
+      administeredDate: formattedTimestamp,
+      clinic: targetDose.clinic || user.patientDetails?.clinicAssigned || 'Community Health Clinic',
+      doctor: targetDose.doctor || user.patientDetails?.primaryPhysician || 'Attending Physician',
+      lotNumber: targetDose.lotNumber || `LOT-PAT-${Math.floor(1000 + Math.random() * 9000)}-${now.getFullYear()}`,
+      siteRoute: targetDose.siteRoute || 'Intramuscular (Deltoid)',
+      status: 'Administered'
+    };
+
+    completed.unshift(newAdministered);
+
+    user.upcomingDoses = upcoming;
+    user.completedHistory = completed;
+    user.markModified('upcomingDoses');
+    user.markModified('completedHistory');
+    await user.save();
+
+    // Also sync with PatientRecord in roster if exists
+    const patientRec = await PatientRecord.findOne({
+      $or: [
+        { id: `pat-${req.user.uid}` },
+        { email: user.email ? user.email.toLowerCase() : '____no_match____' }
+      ]
+    });
+
+    if (patientRec) {
+      let pendingList = Array.isArray(patientRec.pendingVaccines) ? [...patientRec.pendingVaccines] : [];
+      let admList = Array.isArray(patientRec.administeredVaccines) ? [...patientRec.administeredVaccines] : [];
+
+      const pIndex = pendingList.findIndex(p => String(p.id) === String(doseId) || p.vaccine === targetDose.vaccine);
+      if (pIndex !== -1) {
+        pendingList.splice(pIndex, 1);
+      }
+      admList.unshift(newAdministered);
+
+      const total = pendingList.length + admList.length;
+      patientRec.pendingVaccines = pendingList;
+      patientRec.administeredVaccines = admList;
+      patientRec.dosesCount = `${admList.length}/${total}`;
+      patientRec.compliancePercent = total > 0 ? Math.round((admList.length / total) * 100) : 100;
+      const hasOverdue = pendingList.some(p => isDoseOverdue(p, now));
+      patientRec.status = hasOverdue ? 'Overdue' : (pendingList.length > 0 ? 'Scheduled' : 'Administered');
+      patientRec.scheduledDateDisplay = pendingList.length > 0 ? pendingList[0].scheduledDisplay : `Administered ${formattedTimestamp}`;
+      patientRec.markModified('pendingVaccines');
+      patientRec.markModified('administeredVaccines');
+      await patientRec.save();
+    }
+
+    return res.json({
+      success: true,
+      message: `${targetDose.vaccine} (${targetDose.dose}) successfully administered and recorded in verified immunization ledger!`,
+      newAdministered,
+      upcomingDoses: upcoming,
+      completedHistory: completed
+    });
+  } catch (err) {
+    console.error('Patient administer dose error:', err);
+    res.status(500).json({ success: false, message: 'Could not administer dose: ' + err.message });
   }
 });
 

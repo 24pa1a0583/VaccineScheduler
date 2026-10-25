@@ -202,6 +202,12 @@ const api = {
       method: 'PUT',
       body: JSON.stringify(payload)
     });
+  },
+
+  async administerPatientMeDose(doseId) {
+    return this.request(`/data/patient-me/doses/${doseId}/administer`, {
+      method: 'POST'
+    });
   }
 };
 

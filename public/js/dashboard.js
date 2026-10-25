@@ -60,6 +60,7 @@ const DashboardController = {
     this.patUpcomingList = document.getElementById('patient-upcoming-list');
     this.patHistoryBody = document.getElementById('patient-history-body');
     this.patUpcomingCount = document.getElementById('patient-upcoming-count');
+    this.patOverdueCount = document.getElementById('patient-overdue-count');
     this.patAdministeredCount = document.getElementById('patient-administered-count');
 
     // Patient Demographic Top Card Elements
@@ -655,17 +656,19 @@ const DashboardController = {
       }
 
       // Status pill
+      const isOverdue = patient.status === 'Overdue' || this.isDoseOverdue(patient);
       let statusClass = 'status-scheduled';
       let statusIcon = '📅';
-      if (patient.status === 'Overdue') {
+      let statusLabel = patient.status || 'Scheduled';
+      if (isOverdue) {
         statusClass = 'status-overdue';
         statusIcon = '⚠️';
+        statusLabel = 'Overdue';
       } else if (patient.status === 'Administered') {
         statusClass = 'status-administered';
         statusIcon = '✅';
+        statusLabel = 'Administered';
       }
-
-      const isOverdue = patient.status === 'Overdue';
 
       return `
         <tr id="row-${patient.id}" class="${isOverdue ? 'row-overdue-alert' : ''}">
@@ -1544,7 +1547,7 @@ const DashboardController = {
         }
       } else {
         pCont.innerHTML = pending.map(item => {
-          const isOverdue = item.status === 'Overdue';
+          const isOverdue = item.status === 'Overdue' || this.isDoseOverdue(item);
           const borderClass = isOverdue ? 'overdue-border overdue-red-glow' : 'scheduled-border';
           const pillClass = isOverdue ? 'status-overdue' : 'status-scheduled';
           const pillIcon = isOverdue ? '⚠️' : '📅';
@@ -1907,11 +1910,23 @@ const DashboardController = {
         this.patAlertPhysician.style.display = 'none';
       }
 
-      // Upcoming list with Clean Sheet handling
+      // Upcoming and Overdue lists with Clean Sheet handling
       const upcoming = data.upcomingDoses || [];
+      const overdueDoses = upcoming.filter(dose => this.isDoseOverdue(dose));
+      const scheduledDoses = upcoming.filter(dose => !this.isDoseOverdue(dose));
+
       if (this.patUpcomingCount) {
-        this.patUpcomingCount.textContent = `${upcoming.length} Scheduled`;
+        this.patUpcomingCount.textContent = `${scheduledDoses.length} Scheduled`;
       }
+      if (this.patOverdueCount) {
+        if (overdueDoses.length > 0) {
+          this.patOverdueCount.textContent = `🚨 ${overdueDoses.length} Overdue`;
+          this.patOverdueCount.style.display = 'inline-flex';
+        } else {
+          this.patOverdueCount.style.display = 'none';
+        }
+      }
+
       if (this.patUpcomingList) {
         this.patientUpcomingCache = upcoming;
         if (upcoming.length === 0) {
@@ -1926,60 +1941,50 @@ const DashboardController = {
             </div>
           `;
         } else {
-          this.patUpcomingList.innerHTML = upcoming.map(dose => {
-            const isOverdue = (dose.status === 'Overdue') || (dose.scheduledDisplay && dose.scheduledDisplay.toLowerCase().includes('lapsed'));
-            const borderClass = isOverdue ? 'overdue-border' : '';
-            return `
-            <div class="patient-upcoming-card ${borderClass}">
-              <div class="patient-upcoming-card-info">
-                <div class="vaccine-item-title">
-                  <span>${dose.vaccine}</span>
-                  <span class="status-pill ${isOverdue ? 'status-overdue' : 'status-scheduled'}">
-                    ${isOverdue ? '⚠️' : '📅'} ${dose.status || 'Confirmed Appointment'}
+          let html = '';
+
+          // 1. OVERDUE SECTION (Appointments whose scheduled date/time has passed and not administered)
+          if (overdueDoses.length > 0) {
+            html += `
+              <div class="patient-overdue-group" style="margin-bottom: 22px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: rgba(239, 68, 68, 0.08); padding: 10px 14px; border-radius: 8px; border-left: 4px solid #ef4444;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.15rem;">🚨</span>
+                    <strong style="color: #b91c1c; font-size: 0.92rem;">Overdue Vaccines (Scheduled Time Has Passed)</strong>
+                  </div>
+                  <span class="status-pill status-overdue" style="font-size: 0.74rem; animation: redAlertPulse 2s infinite ease-in-out;">
+                    ${overdueDoses.length} Action Required
                   </span>
-                  ${isOverdue ? '<span class="status-pill status-overdue" style="font-size: 0.72rem; animation: redAlertPulse 2s infinite ease-in-out;">🚨 Overdue</span>' : ''}
                 </div>
-                <div class="vaccine-item-meta" style="margin-top: 6px;">
-                  <span>💉 <strong>Dose:</strong> ${dose.dose || 'Routine Dose'}</span>
-                  <span>🕒 <strong>Scheduled Slot:</strong> <strong style="color: ${isOverdue ? '#dc2626' : 'var(--teal-700)'};">${dose.scheduledDisplay}</strong></span>
-                  <span>🏥 <strong>Facility:</strong> ${dose.clinic || 'Community Health Clinic'}</span>
-                  <span>👨‍⚕️ <strong>Physician:</strong> ${dose.doctor || 'Unassigned Clinician'}</span>
+                <div style="font-size: 0.8rem; color: #7f1d1d; margin-bottom: 12px; padding: 0 4px;">
+                  ⚠️ The following vaccination appointment has lapsed. Click <strong>"Administer Dose"</strong> below once you have taken this vaccine to record it in your official immunization history, or <strong>"Reschedule"</strong> to choose a new appointment slot.
                 </div>
-                ${dose.description ? `
-                  <div style="font-size: 0.78rem; color: var(--teal-700); margin-top: 6px; background: rgba(38,185,170,0.08); padding: 5px 8px; border-radius: 4px;">
-                    📝 <strong>Vaccine Description:</strong> ${dose.description}
-                  </div>
-                ` : ''}
-                ${dose.notes ? `
-                  <div class="vaccine-item-notes" style="margin-top: 8px;">
-                    ℹ️ <em>Notes:</em> ${dose.notes}
-                  </div>
-                ` : ''}
+                <div class="patient-overdue-cards-wrapper" style="display: flex; flex-direction: column; gap: 12px;">
+                  ${overdueDoses.map(dose => this.renderPatientDoseCard(dose, true)).join('')}
+                </div>
               </div>
-              <div class="vaccine-item-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenPatientEditDose('${dose.id}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; color: var(--teal-700);">
-                  ✏️ Reschedule / Edit
-                </button>
-                <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenPatientShareModal('${dose.id}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700;">
-                  📤 Share
-                </button>
-                <button type="button" class="btn-gcal-reminder" onclick="DashboardController.handleGoogleCalendarReminder('${dose.id}')" title="Add to Google Calendar to be reminded when time gets near and at pinpoint time" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; flex-shrink: 0;">
-                    <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z" fill="#1A73E8"/>
-                    <rect x="7" y="12" width="4" height="4" rx="1" fill="#4285F4"/>
-                    <rect x="13" y="12" width="4" height="4" rx="1" fill="#34A853"/>
-                    <rect x="7" y="17" width="4" height="4" rx="1" fill="#EA4335"/>
-                    <rect x="13" y="17" width="4" height="4" rx="1" fill="#FBBC04"/>
-                  </svg>
-                  <span>Add to Google Calendar</span>
-                </button>
-                <button type="button" class="btn-delete-patient-dose" title="Cancel Appointment" onclick="DashboardController.handleDeletePatientDose('${dose.id}', '${dose.vaccine.replace(/'/g, "\\'")}')">
-                  🗑️ Cancel Appointment
-                </button>
+            `;
+          }
+
+          // 2. UPCOMING SCHEDULED APPOINTMENTS (Future slots)
+          if (scheduledDoses.length > 0) {
+            if (overdueDoses.length > 0) {
+              html += `
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 0 4px;">
+                  <span style="font-size: 1.05rem;">📅</span>
+                  <strong style="color: var(--text-main); font-size: 0.92rem;">Upcoming Scheduled Appointments</strong>
+                  <span class="status-pill status-scheduled" style="font-size: 0.74rem;">${scheduledDoses.length} Confirmed</span>
+                </div>
+              `;
+            }
+            html += `
+              <div class="patient-scheduled-cards-wrapper" style="display: flex; flex-direction: column; gap: 12px;">
+                ${scheduledDoses.map(dose => this.renderPatientDoseCard(dose, false)).join('')}
               </div>
-            </div>
-          `;
-          }).join('');
+            `;
+          }
+
+          this.patUpcomingList.innerHTML = html;
         }
       }
 
@@ -2023,6 +2028,94 @@ const DashboardController = {
 
     } catch (err) {
       window.AuthController.showToast('Could not load patient dashboard: ' + err.message, 'error');
+    }
+  },
+
+  renderPatientDoseCard(dose, isOverdue) {
+    const borderClass = isOverdue ? 'overdue-border overdue-red-glow' : 'scheduled-border';
+    return `
+      <div class="patient-upcoming-card ${borderClass}">
+        <div class="patient-upcoming-card-info">
+          <div class="vaccine-item-title">
+            <span>${dose.vaccine}</span>
+            <span class="status-pill ${isOverdue ? 'status-overdue' : 'status-scheduled'}">
+              ${isOverdue ? '⚠️ Overdue Appointment' : (dose.status || '📅 Confirmed Appointment')}
+            </span>
+            ${isOverdue ? '<span class="status-pill status-overdue" style="font-size: 0.72rem; animation: redAlertPulse 2s infinite ease-in-out;">🚨 Overdue</span>' : ''}
+          </div>
+          <div class="vaccine-item-meta" style="margin-top: 6px;">
+            <span>💉 <strong>Dose:</strong> ${dose.dose || 'Routine Dose'}</span>
+            <span>🕒 <strong>Scheduled Slot:</strong> <strong style="color: ${isOverdue ? '#dc2626' : 'var(--teal-700)'};">${dose.scheduledDisplay}</strong></span>
+            <span>🏥 <strong>Facility:</strong> ${dose.clinic || 'Community Health Clinic'}</span>
+            <span>👨‍⚕️ <strong>Physician:</strong> ${dose.doctor || 'Unassigned Clinician'}</span>
+          </div>
+          ${dose.description ? `
+            <div style="font-size: 0.78rem; color: var(--teal-700); margin-top: 6px; background: rgba(38,185,170,0.08); padding: 5px 8px; border-radius: 4px;">
+              📝 <strong>Vaccine Description:</strong> ${dose.description}
+            </div>
+          ` : ''}
+          ${dose.notes ? `
+            <div class="vaccine-item-notes" style="margin-top: 8px;">
+              ℹ️ <em>Notes:</em> ${dose.notes}
+            </div>
+          ` : ''}
+        </div>
+        <div class="vaccine-item-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-patient-administer" onclick="DashboardController.handlePatientAdministerDose('${dose.id}')" title="Click to record this vaccine as administered">
+            💉 Administer Dose
+          </button>
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenPatientEditDose('${dose.id}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700; color: var(--teal-700);">
+            ✏️ Reschedule / Edit
+          </button>
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenPatientShareModal('${dose.id}')" style="padding: 6px 12px; font-size: 0.78rem; font-weight: 700;">
+            📤 Share
+          </button>
+          <button type="button" class="btn-gcal-reminder" onclick="DashboardController.handleGoogleCalendarReminder('${dose.id}')" title="Add to Google Calendar to be reminded when time gets near and at pinpoint time" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; flex-shrink: 0;">
+              <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z" fill="#1A73E8"/>
+              <rect x="7" y="12" width="4" height="4" rx="1" fill="#4285F4"/>
+              <rect x="13" y="12" width="4" height="4" rx="1" fill="#34A853"/>
+              <rect x="7" y="17" width="4" height="4" rx="1" fill="#EA4335"/>
+              <rect x="13" y="17" width="4" height="4" rx="1" fill="#FBBC04"/>
+            </svg>
+            <span>Add to Google Calendar</span>
+          </button>
+          <button type="button" class="btn-delete-patient-dose" title="Cancel Appointment" onclick="DashboardController.handleDeletePatientDose('${dose.id}', '${dose.vaccine.replace(/'/g, "\\'")}')">
+            🗑️ Cancel Appointment
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  async handlePatientAdministerDose(doseId) {
+    if (!this.patientData || !this.patientData.upcomingDoses) return;
+    const targetDose = this.patientData.upcomingDoses.find(d => String(d.id) === String(doseId));
+    if (!targetDose) {
+      window.AuthController.showToast('Vaccine appointment not found.', 'error');
+      return;
+    }
+
+    const confirmed = confirm(
+      `💉 Confirm Administration of Vaccine:\n\n` +
+      `• Vaccine: ${targetDose.vaccine}\n` +
+      `• Dose: ${targetDose.dose}\n` +
+      `• Scheduled Slot: ${targetDose.scheduledDisplay}\n\n` +
+      `This will mark this vaccine as administered, update your compliance score, and record it in your official verified immunization history.`
+    );
+    if (!confirmed) return;
+
+    try {
+      window.AuthController.showToast(`Recording administration for ${targetDose.vaccine}...`, 'info');
+      const res = await window.api.administerPatientMeDose(doseId);
+      if (res && res.success) {
+        window.AuthController.showToast(`💉 ${targetDose.vaccine} (${targetDose.dose}) successfully administered and recorded!`, 'success');
+        await this.initPatientDashboard();
+      } else {
+        window.AuthController.showToast(res.message || 'Could not record administration.', 'error');
+      }
+    } catch (err) {
+      window.AuthController.showToast('Administration failed: ' + err.message, 'error');
     }
   },
 
@@ -2290,6 +2383,66 @@ const DashboardController = {
     } catch (err) {
       window.AuthController.showToast('Could not save profile: ' + err.message, 'error');
     }
+  },
+
+  /**
+   * Helper: Determine if a scheduled dose is past its scheduled date and time.
+   * If time has passed and the dose is still not administered, it is Overdue.
+   */
+  isDoseOverdue(dose) {
+    if (!dose) return false;
+    if (dose.status === 'Administered') return false;
+    if (dose.status === 'Overdue') return true;
+    const now = new Date();
+
+    if (dose.scheduledTimestamp) {
+      const t = new Date(dose.scheduledTimestamp);
+      if (!isNaN(t.getTime())) return t < now;
+    }
+
+    if (dose.scheduledDate) {
+      let timeStr = dose.scheduledTime || '23:59';
+      let cleanTime = timeStr;
+      if (/am|pm/i.test(timeStr)) {
+        const match = timeStr.match(/(\d+):(\d+)\s*(am|pm)/i);
+        if (match) {
+          let h = parseInt(match[1], 10);
+          const m = match[2];
+          const isPm = match[3].toLowerCase() === 'pm';
+          if (isPm && h < 12) h += 12;
+          if (!isPm && h === 12) h = 0;
+          cleanTime = `${String(h).padStart(2, '0')}:${m}`;
+        }
+      }
+      if (cleanTime.length === 5) {
+        const combined = new Date(`${dose.scheduledDate}T${cleanTime}:00`);
+        if (!isNaN(combined.getTime())) return combined < now;
+      }
+      const dayOnly = new Date(`${dose.scheduledDate}T23:59:59`);
+      if (!isNaN(dayOnly.getTime())) return dayOnly < now;
+    }
+
+    if (dose.scheduledDisplay) {
+      if (/lapsed|overdue/i.test(dose.scheduledDisplay)) return true;
+      if (dose.scheduledDisplay.includes('Today')) {
+        const timeMatch = dose.scheduledDisplay.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (timeMatch) {
+          let h = parseInt(timeMatch[1], 10);
+          const m = parseInt(timeMatch[2], 10);
+          const isPm = timeMatch[3].toUpperCase() === 'PM';
+          if (isPm && h < 12) h += 12;
+          if (!isPm && h === 12) h = 0;
+          const target = new Date(now);
+          target.setHours(h, m, 0, 0);
+          return target < now;
+        }
+      }
+      const cleaned = dose.scheduledDisplay.replace('•', '').replace(/\(.*\)/, '').trim();
+      const parsed = new Date(cleaned);
+      if (!isNaN(parsed.getTime())) return parsed < now;
+    }
+
+    return false;
   },
 
   /**
