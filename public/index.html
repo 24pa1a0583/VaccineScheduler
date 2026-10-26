@@ -772,12 +772,15 @@
         <!-- Doctor Assignment Section with Live Info Card from Database -->
         <div class="form-group" style="margin-top: 10px;">
           <label for="pat-sched-doctor" class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
-            <span>👨‍⚕️ Assign Attending Doctor <span style="color: var(--teal-700); font-weight: normal;">*</span></span>
-            <span style="font-size: 0.72rem; color: var(--teal-700); font-weight: 600;">Live Database Clinicians</span>
+            <span>👨‍⚕️ Assign Attending Doctor <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Optional)</span></span>
+            <span style="font-size: 0.72rem; color: var(--teal-700); font-weight: 600;">Available Doctors List</span>
           </label>
-          <select id="pat-sched-doctor" class="neo-select" required onchange="DashboardController.handlePatientDoctorSelectChange(this.value)">
-            <option value="">-- Choose Attending Doctor from Database --</option>
+          <select id="pat-sched-doctor" class="neo-select" onchange="DashboardController.handlePatientDoctorSelectChange(this.value)">
+            <option value="">-- None / Personal Reminder (No Doctor Assigned) --</option>
           </select>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+            💡 Optional: Select an available doctor from our database if you want them to review and approve your appointment, or leave blank to manage as a personal vaccination reminder.
+          </div>
         </div>
 
         <!-- Doctor Details Preview Card -->

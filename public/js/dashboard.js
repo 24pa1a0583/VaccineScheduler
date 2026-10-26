@@ -2145,7 +2145,11 @@ const DashboardController = {
             <span>💉 <strong>Dose:</strong> ${dose.dose || 'Routine Dose'}</span>
             <span>🕒 <strong>Scheduled Slot:</strong> <strong style="color: ${isOverdue ? '#dc2626' : 'var(--teal-700)'};">${dose.scheduledDisplay}</strong></span>
             <span>🏥 <strong>Facility:</strong> ${dose.clinic || 'Community Health Clinic'}</span>
-            <span>👨‍⚕️ <strong>Physician:</strong> ${dose.doctor || 'Unassigned Clinician'}</span>
+            <span>👨‍⚕️ <strong>Physician:</strong> ${
+              dose.doctor === 'None (Personal Tracking)' || !dose.doctor
+                ? '<span style="color: var(--text-muted); font-style: italic;">Personal Tracking (Self-Managed)</span>'
+                : dose.doctor
+            }</span>
           </div>
           ${isPendingApproval ? `
             <div style="font-size: 0.78rem; color: #b45309; margin-top: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 8px; border-radius: 4px;">
@@ -2308,18 +2312,17 @@ const DashboardController = {
     const notes = document.getElementById('pat-sched-notes')?.value?.trim() || '';
     const doctorId = document.getElementById('pat-sched-doctor')?.value || '';
 
-    if (!doctorId) {
-      window.AuthController.showToast('Please assign an attending doctor from our database.', 'error');
-      return;
-    }
-
     if (!vaccineName || !scheduledDate) {
       window.AuthController.showToast('Please choose a vaccine and select an appointment date.', 'error');
       return;
     }
 
     try {
-      window.AuthController.showToast('Submitting appointment request to assigned doctor...', 'info');
+      if (doctorId) {
+        window.AuthController.showToast('Submitting appointment request to assigned doctor...', 'info');
+      } else {
+        window.AuthController.showToast('Scheduling vaccination reminder...', 'info');
+      }
       const response = await window.api.schedulePatientDose({
         vaccineName,
         vaccineDescription,
@@ -2638,7 +2641,7 @@ const DashboardController = {
         return;
       }
 
-      let optionsHtml = '<option value="">-- Choose Attending Doctor from Database --</option>';
+      let optionsHtml = '<option value="">-- None / Personal Reminder (No Doctor Assigned) --</option>';
       this.cachedDoctors.forEach(d => {
         optionsHtml += `<option value="${d.uid}">👨‍⚕️ ${d.fullName} — ${d.specialization} (${d.hospital})</option>`;
       });
@@ -2647,12 +2650,9 @@ const DashboardController = {
       docSelect.onchange = (e) => this.handlePatientDoctorSelectChange(e.target.value);
       docSelect.oninput = (e) => this.handlePatientDoctorSelectChange(e.target.value);
 
-      // Pre-select first doctor if available so user gets instant preview
-      if (this.cachedDoctors.length > 0) {
-        const preferred = this.cachedDoctors[0];
-        docSelect.value = preferred.uid;
-        this.handlePatientDoctorSelectChange(preferred.uid);
-      }
+      // Default to personal tracking mode (assigning doctor is optional)
+      docSelect.value = '';
+      this.handlePatientDoctorSelectChange('');
     } catch (err) {
       console.error('Error loading doctors for scheduling:', err);
     }

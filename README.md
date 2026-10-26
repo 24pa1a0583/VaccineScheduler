@@ -153,21 +153,21 @@ When you log in, your personal Digital Pass displays:
 
 ---
 
-### 2. Scheduling a New Vaccine Appointment & Assigning a Doctor
+### 2. Scheduling a New Vaccine Appointment (Personal Reminder or Doctor Assignment)
 Want to schedule a routine booster, seasonal flu shot, or travel vaccine?
 1. Click **"➕ Schedule New Vaccine"** on your dashboard.
 2. Select or type the vaccine name and dose stage.
-3. **👨‍⚕️ Assign Attending Doctor from Database**: Choose your preferred physician from all doctors registered in the live database. An interactive preview card displays their specialization, hospital, email, and direct phone contact.
+3. **👨‍⚕️ Assign Attending Doctor (Optional)**:
+   - **Personal Reminder Mode (Default)**: If you use the app simply for remembering your upcoming vaccines, leave the dropdown as `-- None / Personal Reminder (No Doctor Assigned) --`. The dose is confirmed immediately into your personal timeline without requiring doctor approval. You can sync to Google Calendar, receive timely alerts, and self-administer at your convenience.
+   - **Assigning an Available Doctor**: If you desire clinical oversight or in-clinic administration, choose any doctor from the list of available clinicians in the live database. An interactive preview card displays their full name, clinical specialization, hospital affiliation, email, and direct phone contact.
 4. Pick your preferred appointment date and time slot.
-5. Add any clinical notes or allergy details for the physician.
+5. Add any clinical notes or personal reminders.
 6. Click **"📅 Confirm Appointment & Set Reminder"**.
 
 > [!NOTE]
-> **Clinical Enrollment & Approval Workflow:**
-> - When you submit an appointment, a direct request is dispatched to the chosen doctor.
-> - While awaiting review, your appointment card displays a amber **`⏳ Pending Doctor Approval`** status.
-> - **If the doctor accepts:** You are officially enrolled into their active patient list, the appointment is confirmed, and an acceptance notification with doctor notes is delivered to your portal.
-> - **If the doctor declines:** The appointment does not appear on their active patient list, and an alert with the doctor's clinical reason is sent to your **`🔔 Doctor Responses`** inbox with a 1-click **"🔄 Reschedule with Another Doctor"** button.
+> **Flexible Appointment Modes:**
+> - **Self-Scheduled / Personal Reminders:** Immediate confirmation! Perfect for users tracking routine immunizations, OTC shots, or personal memory. Syncs directly with Google Calendar with zero waiting time.
+> - **Doctor-Assigned Appointments:** An appointment request is dispatched directly to the chosen doctor's clinical inbox (`⏳ Pending Doctor Approval`). Once the doctor accepts, you are officially enrolled in their active patient caseload; if declined, you receive an explanatory notification with an instant reschedule option.
 
 
 ---

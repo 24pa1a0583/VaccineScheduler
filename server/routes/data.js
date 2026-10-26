@@ -1163,102 +1163,130 @@ router.post('/patient-me/schedule', verifyToken, async (req, res) => {
     }
 
     const patientDetails = user.patientDetails || {};
-
-    // Look up assigned doctor
-    let assignedDoctor = null;
-    if (doctorId && doctorId !== 'unassigned') {
-      assignedDoctor = await User.findOne({ uid: doctorId, role: 'doctor' });
-    }
-    if (!assignedDoctor) {
-      // If demo doctor or fallback
-      assignedDoctor = await User.findOne({
-        $or: [
-          { uid: 'demo-doctor-01' },
-          { email: 'doctor@immu-track.org' },
-          { role: 'doctor' }
-        ]
-      });
-    }
-
-    const doctorUid = assignedDoctor ? assignedDoctor.uid : 'demo-doctor-01';
-    const doctorName = assignedDoctor ? (assignedDoctor.fullName || 'Dr. Sarah Jenkins, MD') : 'Dr. Sarah Jenkins, MD';
-    const doctorEmail = assignedDoctor ? (assignedDoctor.email || '') : 'doctor@immu-track.org';
-    const doctorHospital = assignedDoctor?.doctorDetails?.hospital || clinic || 'Swedish Medical Center — Pediatric Specialty Clinic';
-    const doctorSpecialization = assignedDoctor?.doctorDetails?.specialization || 'Pediatrician / Immunologist';
-
     const doseId = `dose-up-${Date.now()}`;
-    const requestId = `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const hasDoctorAssigned = Boolean(
+      doctorId &&
+      doctorId !== 'none' &&
+      doctorId !== 'unassigned' &&
+      typeof doctorId === 'string' &&
+      doctorId.trim() !== ''
+    );
 
-    // Create persistent AppointmentRequest in MongoDB
-    const apptRequest = new AppointmentRequest({
-      id: requestId,
-      patientUid: user.uid,
-      patientName: user.fullName || req.user.fullName || 'Patient',
-      patientEmail: user.email || '',
-      patientPhone: format10DigitPhone(user.phone) || user.phone || '',
-      patientDob: patientDetails.dob || null,
-      patientGender: patientDetails.gender || '',
-      patientBloodGroup: patientDetails.bloodGroup || '',
-      patientAllergies: patientDetails.allergies || 'None',
-      doctorId: doctorUid,
-      doctorName: doctorName,
-      doctorEmail: doctorEmail,
-      doctorHospital: doctorHospital,
-      doctorSpecialization: doctorSpecialization,
-      vaccineName,
-      doseNumber: doseNumber || 'Routine Dose',
-      vaccineDescription: vaccineDescription || '',
-      scheduledDate,
-      scheduledTime: timeStr,
-      scheduledDisplay: formattedDisplay,
-      clinic: clinic || doctorHospital,
-      notes: notes || '',
-      status: 'pending',
-      doctorNotes: '',
-      doseId: doseId,
-      createdAtIso: new Date().toISOString()
-    });
+    let assignedDoctor = null;
+    let requestId = null;
+    let newDose = null;
 
-    await apptRequest.save();
+    if (hasDoctorAssigned) {
+      // Look up chosen doctor from database
+      assignedDoctor = await User.findOne({ uid: doctorId, role: 'doctor' });
+      if (!assignedDoctor && doctorId === 'demo-doctor-01') {
+        assignedDoctor = await User.findOne({
+          $or: [
+            { uid: 'demo-doctor-01' },
+            { email: 'doctor@immu-track.org' },
+            { role: 'doctor' }
+          ]
+        });
+      }
 
-    // Send direct notification to the assigned doctor
-    if (assignedDoctor) {
-      if (!Array.isArray(assignedDoctor.notifications)) assignedDoctor.notifications = [];
-      assignedDoctor.notifications.unshift({
-        id: `notif-doc-${Date.now()}`,
-        type: 'new_appointment_request',
-        title: 'New Appointment Request 📋',
-        message: `Patient ${user.fullName || 'Alex Vance'} has requested an appointment with you for ${vaccineName} (${doseNumber || 'Routine Dose'}) on ${formattedDisplay}.`,
-        requestId: requestId,
-        patientName: user.fullName || 'Patient',
-        patientUid: user.uid,
-        vaccineName,
-        doseNumber: doseNumber || 'Routine Dose',
-        scheduledDisplay: formattedDisplay,
-        createdAt: new Date().toISOString(),
-        read: false
-      });
-      assignedDoctor.markModified('notifications');
-      await assignedDoctor.save().catch(err => console.error('Could not save doctor notification:', err));
+      if (assignedDoctor) {
+        const doctorUid = assignedDoctor.uid;
+        const doctorName = assignedDoctor.fullName || 'Dr. Sarah Jenkins, MD';
+        const doctorEmail = assignedDoctor.email || 'doctor@immu-track.org';
+        const doctorHospital = assignedDoctor?.doctorDetails?.hospital || clinic || 'Swedish Medical Center — Pediatric Specialty Clinic';
+        const doctorSpecialization = assignedDoctor?.doctorDetails?.specialization || 'Pediatrician / Immunologist';
+
+        requestId = `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+        // Create persistent AppointmentRequest in MongoDB for clinician approval
+        const apptRequest = new AppointmentRequest({
+          id: requestId,
+          patientUid: user.uid,
+          patientName: user.fullName || req.user.fullName || 'Patient',
+          patientEmail: user.email || '',
+          patientPhone: format10DigitPhone(user.phone) || user.phone || '',
+          patientDob: patientDetails.dob || null,
+          patientGender: patientDetails.gender || '',
+          patientBloodGroup: patientDetails.bloodGroup || '',
+          patientAllergies: patientDetails.allergies || 'None',
+          doctorId: doctorUid,
+          doctorName: doctorName,
+          doctorEmail: doctorEmail,
+          doctorHospital: doctorHospital,
+          doctorSpecialization: doctorSpecialization,
+          vaccineName,
+          doseNumber: doseNumber || 'Routine Dose',
+          vaccineDescription: vaccineDescription || '',
+          scheduledDate,
+          scheduledTime: timeStr,
+          scheduledDisplay: formattedDisplay,
+          clinic: clinic || doctorHospital,
+          notes: notes || '',
+          status: 'pending',
+          doctorNotes: '',
+          doseId: doseId,
+          createdAtIso: new Date().toISOString()
+        });
+
+        await apptRequest.save();
+
+        // Send direct in-app notification to the assigned doctor
+        if (!Array.isArray(assignedDoctor.notifications)) assignedDoctor.notifications = [];
+        assignedDoctor.notifications.unshift({
+          id: `notif-doc-${Date.now()}`,
+          type: 'new_appointment_request',
+          title: 'New Appointment Request 📋',
+          message: `Patient ${user.fullName || 'Alex Vance'} has requested an appointment with you for ${vaccineName} (${doseNumber || 'Routine Dose'}) on ${formattedDisplay}.`,
+          requestId: requestId,
+          patientName: user.fullName || 'Patient',
+          patientUid: user.uid,
+          vaccineName,
+          doseNumber: doseNumber || 'Routine Dose',
+          scheduledDisplay: formattedDisplay,
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+        assignedDoctor.markModified('notifications');
+        await assignedDoctor.save().catch(err => console.error('Could not save doctor notification:', err));
+
+        newDose = {
+          id: doseId,
+          requestId: requestId,
+          vaccine: vaccineName,
+          dose: doseNumber || 'Routine Dose',
+          description: vaccineDescription || '',
+          scheduledDate,
+          scheduledTime: timeStr,
+          scheduledDisplay: formattedDisplay,
+          clinic: clinic || doctorHospital,
+          doctor: doctorName,
+          doctorId: doctorUid,
+          status: 'Pending Doctor Approval',
+          requestStatus: 'pending',
+          notes: notes ? `${notes} • Assigned Doctor: ${doctorName}` : `Assigned Doctor: ${doctorName}`
+        };
+      }
     }
 
-    // Add upcoming dose to patient's personal view with 'Pending Doctor Approval'
-    const newDose = {
-      id: doseId,
-      requestId: requestId,
-      vaccine: vaccineName,
-      dose: doseNumber || 'Routine Dose',
-      description: vaccineDescription || '',
-      scheduledDate,
-      scheduledTime: timeStr,
-      scheduledDisplay: formattedDisplay,
-      clinic: clinic || doctorHospital,
-      doctor: doctorName,
-      doctorId: doctorUid,
-      status: 'Pending Doctor Approval',
-      requestStatus: 'pending',
-      notes: notes ? `${notes} • Assigned Doctor: ${doctorName}` : `Assigned Doctor: ${doctorName}`
-    };
+    // If no doctor was assigned (used for personal remembering / self-tracking)
+    if (!newDose) {
+      newDose = {
+        id: doseId,
+        requestId: null,
+        vaccine: vaccineName,
+        dose: doseNumber || 'Routine Dose',
+        description: vaccineDescription || '',
+        scheduledDate,
+        scheduledTime: timeStr,
+        scheduledDisplay: formattedDisplay,
+        clinic: clinic || 'Community Health Clinic',
+        doctor: 'None (Personal Tracking)',
+        doctorId: null,
+        status: 'Confirmed Appointment',
+        requestStatus: 'self_scheduled',
+        notes: notes ? `${notes} • Personal Reminder` : 'Personal vaccination reminder'
+      };
+    }
 
     let currentUpcoming = Array.isArray(user.upcomingDoses) ? [...user.upcomingDoses] : [];
     currentUpcoming.unshift(newDose);
@@ -1266,12 +1294,13 @@ router.post('/patient-me/schedule', verifyToken, async (req, res) => {
     user.markModified('upcomingDoses');
     await user.save();
 
-    // NOTICE: We do NOT insert into PatientRecord here!
-    // The patient will only be enrolled into the doctor's active patient list when the doctor ACCEPTS!
+    const successMessage = (hasDoctorAssigned && assignedDoctor)
+      ? `${vaccineName} scheduled! Appointment request dispatched to ${newDose.doctor} for approval.`
+      : `${vaccineName} scheduled successfully for personal reminder and tracking!`;
 
     return res.status(201).json({
       success: true,
-      message: `${vaccineName} scheduled! Appointment request dispatched to ${doctorName}. Pending clinical approval.`,
+      message: successMessage,
       newDose,
       requestId,
       upcomingDoses: currentUpcoming
