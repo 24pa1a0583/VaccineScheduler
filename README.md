@@ -25,7 +25,16 @@ cd VaccineScheduler
 npm install
 ```
 
-### 3. Start the application
+### 3. Configure Environment Variables
+Copy `.env.example` to create your own `.env` file:
+```bash
+cp .env.example .env
+```
+*(On Windows Command Prompt, use `copy .env.example .env`)*
+
+Configure your `MONGODB_URI` and `JWT_SECRET`. If deploying to Render, add `MONGODB_URI` in the **Environment Variables** dashboard tab.
+
+### 4. Start the application
 ```bash
 npm start
 ```
@@ -36,7 +45,7 @@ http://localhost:3000
 ```
 
 > [!TIP]
-> **No database setup is required!** The application is pre-connected to a live MongoDB Atlas cloud database with instant demo accounts ready to test.
+> **Cloud or Local MongoDB:** Connect your own MongoDB Atlas cluster connection string in `.env`, or connect to a local instance at `mongodb://127.0.0.1:27017/vaccinescheduler`. Instant demo accounts are automatically initialized.
 
 ---
 

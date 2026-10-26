@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const DEFAULT_MONGO_URI = 'mongodb+srv://24pa1a0583_db_user:TzIs18L2T1TYiEoy@vaccinescheduler.czkuwcd.mongodb.net/vaccinescheduler?retryWrites=true&w=majority';
-const MONGO_URI = process.env.MONGODB_URI || DEFAULT_MONGO_URI;
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/vaccinescheduler';
+
+if (!process.env.MONGODB_URI) {
+  console.warn('⚠️ [MongoDB Atlas] MONGODB_URI environment variable not detected. Falling back to default URI.');
+  console.warn('ℹ️ To connect to your cloud database, set MONGODB_URI in your .env file (see .env.example) or hosting environment variables.');
+}
 
 /**
  * Connect to MongoDB Atlas

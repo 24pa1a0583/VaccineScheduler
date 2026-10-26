@@ -710,23 +710,282 @@
   transform: translateY(-1px);
 }
 
+/* ==========================================================================
+   PRINT STYLES FOR OFFICIAL SUMMARIES & CERTIFICATES
+   ========================================================================== */
 @media print {
-  body * {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  /* Reset global backgrounds and text color for crisp paper printing */
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide interactive navigation, buttons, toast alerts, scrollbars */
+  .navbar,
+  .chart-header-actions,
+  .btn-primary-glow,
+  .btn-secondary-neo,
+  .btn-patient-administer,
+  .btn-gcal-reminder,
+  .btn-delete-patient-dose,
+  .btn-cert-export,
+  .neo-circle-btn,
+  .toast-container,
+  .live-sync-pill,
+  .pulse-indicator,
+  #btn-close-chart-modal,
+  #btn-patient-open-schedule,
+  .modal-overlay:not(.is-printing-target) {
+    display: none !important;
+  }
+
+  /* 1. Official Printable Summary Document */
+  body.printing-summary * {
     visibility: hidden;
   }
-  #certificate-modal, #certificate-modal * {
+  body.printing-summary #printable-summary-container,
+  body.printing-summary #printable-summary-container * {
     visibility: visible;
   }
-  #certificate-modal {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: auto;
-    background: white;
+  body.printing-summary #printable-summary-container {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #0f172a !important;
   }
-  .modal-header, #btn-close-cert-secondary, .btn-primary-glow {
+
+  /* 2. Official Certificate Sheet Printing */
+  body.printing-certificate * {
+    visibility: hidden;
+  }
+  body.printing-certificate #printable-certificate-sheet,
+  body.printing-certificate #printable-certificate-sheet * {
+    visibility: visible;
+  }
+  body.printing-certificate #certificate-modal {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body.printing-certificate #printable-certificate-sheet {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    border: 2px solid #0f766e !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+  body.printing-certificate .modal-header,
+  body.printing-certificate #btn-close-cert-secondary,
+  body.printing-certificate .btn-primary-glow {
     display: none !important;
+  }
+
+  /* 3. Patient Chart Modal Direct Printing */
+  body.printing-chart * {
+    visibility: hidden;
+  }
+  body.printing-chart #patient-chart-modal,
+  body.printing-chart #patient-chart-modal * {
+    visibility: visible;
+  }
+  body.printing-chart #patient-chart-modal {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    overflow: visible !important;
+  }
+  body.printing-chart .chart-modal-card {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body.printing-chart .chart-header-actions,
+  body.printing-chart .chart-tabs-row,
+  body.printing-chart #btn-chart-add-dose,
+  body.printing-chart .btn-secondary-neo {
+    display: none !important;
+  }
+
+  /* Document Typography & Table Styles in Print */
+  .print-document {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    padding: 10px;
+  }
+
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #0f766e;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .print-logo {
+    font-size: 20pt;
+    font-weight: 800;
+    color: #0f766e;
+    letter-spacing: -0.5px;
+  }
+
+  .print-subtitle {
+    font-size: 9pt;
+    color: #475569;
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  .print-header-meta {
+    text-align: right;
+    font-size: 8.5pt;
+    color: #334155;
+    line-height: 1.4;
+  }
+
+  .print-status-verified {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .print-section {
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+
+  .print-section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #0f766e;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .print-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-bottom: 8px;
+  }
+
+  .print-table th,
+  .print-table td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .print-table th {
+    background: #f1f5f9 !important;
+    font-weight: 700;
+    color: #1e293b;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .print-table-demographics th {
+    width: 18%;
+    background: #f8fafc !important;
+    color: #475569;
+    font-weight: 600;
+  }
+
+  .print-table-demographics td {
+    width: 32%;
+  }
+
+  .print-alert-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0d9488;
+    padding: 8px 12px;
+    font-size: 8.5pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .print-attestation-block {
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid #94a3b8;
+    page-break-inside: avoid;
+  }
+
+  .print-attest-text {
+    font-size: 8pt;
+    color: #64748b;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  .print-signatures-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+  }
+
+  .print-sig-col {
+    width: 42%;
+    text-align: center;
+  }
+
+  .print-sig-line {
+    border-bottom: 1px solid #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .print-sig-label {
+    font-size: 8.5pt;
+    color: #334155;
+    font-weight: 600;
   }
 }
 

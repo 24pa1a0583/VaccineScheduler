@@ -501,6 +501,9 @@
             <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
               ✏️ Edit Profile
             </button>
+            <button type="button" class="btn-secondary-neo" onclick="DashboardController.handlePrintSummary()" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;" title="Print official immunization summary">
+              🖨️ Print Summary
+            </button>
             <span class="live-sync-pill">
               <span class="pulse-indicator" style="width: 7px; height: 7px;"></span>
               Secure EHR Connected
@@ -658,6 +661,9 @@
                   <span style="color: var(--text-muted);">Attending Physician:</span>
                   <strong id="pat-summary-physician">Unassigned</strong>
                 </div>
+                <button type="button" class="btn-secondary-neo" onclick="DashboardController.handlePrintSummary()" style="width: 100%; margin-top: 12px; padding: 8px 12px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  🖨️ Print Immunization Summary
+                </button>
               </div>
             </div>
 
@@ -676,7 +682,7 @@
                   <span id="patient-upcoming-count" class="status-pill status-scheduled">0 Scheduled</span>
                   <span id="patient-overdue-count" class="status-pill status-overdue" style="display: none; animation: redAlertPulse 2s infinite ease-in-out;">0 Overdue</span>
                 </div>
-                <button type="button" id="btn-patient-open-schedule" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+                <button type="button" id="btn-patient-open-schedule" class="btn-primary-glow" onclick="DashboardController.openPatientScheduleModal()" style="padding: 8px 18px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
                   ➕ Schedule New Vaccine
                 </button>
               </div>
@@ -988,7 +994,7 @@
           <button type="button" class="btn-secondary-neo" onclick="DashboardController.handleOpenShareModalFromChart()" style="padding: 7px 16px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;">
             📤 Share Vaccine Notice (GMail / WhatsApp / SMS)
           </button>
-          <button type="button" class="btn-secondary-neo" onclick="window.print()" style="padding: 7px 16px; font-size: 0.8rem;">
+          <button type="button" class="btn-secondary-neo" onclick="DashboardController.handlePrintSummary()" style="padding: 7px 16px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;" title="Print official patient clinical summary">
             🖨️ Print Summary
           </button>
           <button type="button" id="btn-close-chart-modal" class="neo-circle-btn" style="width: 36px; height: 36px;">&times;</button>
@@ -1801,11 +1807,12 @@
         <!-- Rendered dynamically -->
       </div>
 
-      <div style="display: flex; justify-content: flex-end; margin-top: 18px; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-top: 14px;">
-        <button type="button" id="btn-done-patient-notifications" class="btn-primary-glow" style="padding: 8px 20px;">Close</button>
       </div>
     </div>
   </div>
+
+  <!-- Hidden Container for Official Printable Health & Immunization Summaries -->
+  <div id="printable-summary-container" style="display: none;"></div>
 
   <!-- Application Logic Scripts -->
   <script src="/js/api.js"></script>

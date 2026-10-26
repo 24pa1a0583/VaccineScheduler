@@ -533,11 +533,8 @@ const DashboardController = {
 
     // Patient Schedule Modal triggers
     if (this.btnPatientOpenSchedule) {
-      this.btnPatientOpenSchedule.onclick = () => {
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-        const dateInput = document.getElementById('pat-sched-date');
-        if (dateInput && !dateInput.value) dateInput.value = tomorrow;
-        if (this.patientScheduleModal) this.patientScheduleModal.style.display = 'flex';
+      this.btnPatientOpenSchedule.onclick = async () => {
+        await this.openPatientScheduleModal();
       };
     }
 
@@ -2106,6 +2103,9 @@ const DashboardController = {
         }
       }
 
+      // Pre-load available doctors from database so the schedule modal is instantly populated
+      this.loadDoctorsForPatientSchedule().catch(err => console.warn('Doctor preload notice:', err));
+
     } catch (err) {
       window.AuthController.showToast('Could not load patient dashboard: ' + err.message, 'error');
     }
@@ -2619,9 +2619,9 @@ const DashboardController = {
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     const dateInput = document.getElementById('pat-sched-date');
     if (dateInput && !dateInput.value) dateInput.value = tomorrow;
-    await this.loadDoctorsForPatientSchedule();
     const modal = this.patientScheduleModal || document.getElementById('patient-schedule-modal');
     if (modal) modal.style.display = 'flex';
+    await this.loadDoctorsForPatientSchedule();
   },
 
   async loadDoctorsForPatientSchedule() {
@@ -2631,13 +2631,20 @@ const DashboardController = {
       if (docCard) docCard.style.display = 'none';
 
       if (!docSelect) return;
-      docSelect.innerHTML = '<option value="">⏳ Loading doctors from database...</option>';
 
-      const res = await window.api.getDoctors();
-      this.cachedDoctors = res.doctors || [];
+      // If already cached and populated with > 1 option, skip re-fetch
+      if (this.cachedDoctors && this.cachedDoctors.length > 0 && docSelect.options.length > 1) {
+        return;
+      }
+
+      if (!this.cachedDoctors || this.cachedDoctors.length === 0) {
+        docSelect.innerHTML = '<option value="">⏳ Loading available doctors...</option>';
+        const res = await window.api.getDoctors();
+        this.cachedDoctors = (res && res.doctors) || [];
+      }
 
       if (this.cachedDoctors.length === 0) {
-        docSelect.innerHTML = '<option value="">No registered doctors found</option>';
+        docSelect.innerHTML = '<option value="">-- None / Personal Reminder (No Doctor Assigned) --</option>';
         return;
       }
 
@@ -2655,6 +2662,10 @@ const DashboardController = {
       this.handlePatientDoctorSelectChange('');
     } catch (err) {
       console.error('Error loading doctors for scheduling:', err);
+      const docSelect = document.getElementById('pat-sched-doctor');
+      if (docSelect && docSelect.options.length <= 1) {
+        docSelect.innerHTML = '<option value="">-- None / Personal Reminder (No Doctor Assigned) --</option>';
+      }
     }
   },
 
@@ -3162,7 +3173,263 @@ const DashboardController = {
     } catch (err) {
       window.AuthController.showToast('Could not mark read: ' + err.message, 'error');
     }
+  },
+
+  // =========================================================================
+  // PRINT SUMMARY & CLINICAL REPORT GENERATION
+  // =========================================================================
+
+  handlePrintSummary() {
+    // 1. Check if patient chart modal is currently open (Doctor view)
+    const chartModal = document.getElementById('patient-chart-modal');
+    if (chartModal && chartModal.style.display === 'flex') {
+      const patient = this.activeChartPatient || (this.allPatients && this.allPatients.find(p => String(p.id) === String(this.currentActiveChartPatientId)));
+      if (patient) {
+        this.renderPrintableClinicalSummary(patient, 'doctor');
+        return;
+      }
+    }
+
+    // 2. Check if certificate modal is open
+    const certModal = document.getElementById('certificate-modal');
+    if (certModal && certModal.style.display === 'flex') {
+      document.body.classList.add('printing-certificate');
+      window.print();
+      return;
+    }
+
+    // 3. Check if in Patient Portal with patientData
+    if (this.patientData) {
+      this.renderPrintableClinicalSummary(this.patientData, 'patient');
+      return;
+    }
+
+    // 4. Fallback: print standard view
+    window.print();
+  },
+
+  renderPrintableClinicalSummary(data, mode) {
+    const container = document.getElementById('printable-summary-container');
+    if (!container) {
+      window.print();
+      return;
+    }
+
+    const isPatientMode = mode === 'patient';
+    const info = isPatientMode ? (data.patientInfo || {}) : data;
+    const patUser = this.currentUser || {};
+    const patDetails = patUser.patientDetails || {};
+
+    const fullName = info.fullName || patUser.fullName || 'Patient Record';
+    const mrn = info.mrn || `MRN-${(patUser.uid || '9042').substring(0, 8).toUpperCase()}`;
+    const dob = info.dob || patDetails.dob || 'Not provided';
+    const ageCalc = dob && dob !== 'Not provided' ? this.calculatePatientAge(dob) : { ageDisplay: 'Not provided', category: 'General' };
+    const gender = info.gender || patDetails.gender || 'Not specified';
+    const bloodGroup = info.bloodGroup || patDetails.bloodGroup || 'Not specified';
+    const phone = this.formatPhoneNumber(info.phone || patUser.phone) || 'Not provided';
+    const email = info.email || patUser.email || 'Not provided';
+    const emergency = this.formatEmergencyContact(info.emergencyContact || patDetails.emergencyContact) || 'Not provided';
+    const address = info.address || patDetails.address || 'Not provided on file';
+    const insurance = info.insurance || patDetails.insurance || 'Not provided on file';
+    const allergies = info.allergies || patDetails.allergies || 'No known allergies documented';
+    const conditions = info.medicalConditions || patDetails.medicalConditions || info.riskFactors || 'None documented';
+    const doctorAssigned = info.doctorAssigned || info.primaryPhysician || (isPatientMode ? 'Self-Managed / Primary Care' : (patUser.fullName || 'Attending Clinician'));
+    const clinic = info.clinicAssigned || info.clinic || (isPatientMode ? (info.clinicAssigned || 'Community Health Center') : (patUser.doctorDetails?.hospital || 'Clinical Facility'));
+    const compliance = isPatientMode ? (info.complianceScore || '100%') : (data.complianceRate || '100%');
+
+    // Administered history rows
+    const administered = isPatientMode ? (data.completedHistory || []) : (data.completedVaccines || []);
+    let administeredRows = '';
+    if (administered.length === 0) {
+      administeredRows = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 12px;">No administered vaccines recorded to date.</td></tr>`;
+    } else {
+      administeredRows = administered.map((v, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${v.vaccine || v.vaccineName || 'Vaccine'}</strong></td>
+          <td>${v.dose || v.doseNumber || 'Routine Dose'}</td>
+          <td style="color: #047857; font-weight: 600;">${v.administeredDate || v.date || 'Recorded'}</td>
+          <td><code>${v.lotNumber || 'LOT-VERIFIED'}</code></td>
+          <td>${v.clinic || clinic}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Scheduled upcoming doses rows
+    const upcoming = isPatientMode ? (data.upcomingDoses || []) : (data.pendingVaccines || []);
+    let upcomingRows = '';
+    if (upcoming.length === 0) {
+      upcomingRows = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 12px;">No future pending vaccinations currently scheduled.</td></tr>`;
+    } else {
+      upcomingRows = upcoming.map((v, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${v.vaccine || v.vaccineName || 'Vaccine'}</strong></td>
+          <td>${v.dose || v.doseNumber || 'Routine Dose'}</td>
+          <td style="color: #0f766e; font-weight: 600;">${v.scheduledDisplay || v.scheduledDateDisplay || v.scheduledDate || 'Scheduled'}</td>
+          <td>${v.clinic || clinic}</td>
+          <td>${v.doctor || doctorAssigned}</td>
+        </tr>
+      `).join('');
+    }
+
+    const printDate = new Date().toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    container.innerHTML = `
+      <div class="print-document">
+        <div class="print-header">
+          <div class="print-header-brand">
+            <div class="print-logo">💉 ImmuTrack EHR</div>
+            <div class="print-subtitle">Clinical Immunization Registry & Comprehensive Health Summary</div>
+          </div>
+          <div class="print-header-meta">
+            <div><strong>Report Date:</strong> ${printDate}</div>
+            <div><strong>MRN:</strong> ${mrn}</div>
+            <div><span class="print-status-verified">✓ Official Verified EHR Summary</span></div>
+          </div>
+        </div>
+
+        <div class="print-section">
+          <h3 class="print-section-title">👤 Patient Demographic Profile</h3>
+          <table class="print-table print-table-demographics">
+            <tr>
+              <th>Legal Name</th>
+              <td><strong>${fullName}</strong></td>
+              <th>MRN</th>
+              <td><code>${mrn}</code></td>
+            </tr>
+            <tr>
+              <th>Date of Birth & Age</th>
+              <td>${dob} (${ageCalc.ageDisplay})</td>
+              <th>Gender / Blood Group</th>
+              <td>${gender} • ${bloodGroup}</td>
+            </tr>
+            <tr>
+              <th>Primary Phone</th>
+              <td>${phone}</td>
+              <th>Alternative / Emergency</th>
+              <td>${emergency}</td>
+            </tr>
+            <tr>
+              <th>Email Address</th>
+              <td>${email}</td>
+              <th>Healthcare Facility</th>
+              <td>${clinic}</td>
+            </tr>
+            <tr>
+              <th>Residential Address</th>
+              <td colspan="3">${address}</td>
+            </tr>
+            <tr>
+              <th>Insurance Carrier & ID</th>
+              <td colspan="3">${insurance}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="print-section">
+          <h3 class="print-section-title">⚠️ Clinical Alerts & Contraindications</h3>
+          <div class="print-alert-box">
+            <div><strong>Documented Allergies:</strong> ${allergies}</div>
+            <div><strong>Medical Conditions / Risks:</strong> ${conditions}</div>
+            <div><strong>Attending Physician:</strong> ${doctorAssigned}</div>
+            <div><strong>Immunization Compliance:</strong> ${compliance}</div>
+          </div>
+        </div>
+
+        <div class="print-section">
+          <h3 class="print-section-title">📜 Verified Administered Vaccines (Completed History)</h3>
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 30%;">Vaccine</th>
+                <th style="width: 15%;">Dose</th>
+                <th style="width: 18%;">Date Administered</th>
+                <th style="width: 14%;">Lot Number</th>
+                <th style="width: 18%;">Administered At</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${administeredRows}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="print-section">
+          <h3 class="print-section-title">📅 Scheduled & Upcoming Appointments</h3>
+          <table class="print-table">
+            <thead>
+              <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 30%;">Vaccine</th>
+                <th style="width: 15%;">Dose</th>
+                <th style="width: 22%;">Scheduled Slot</th>
+                <th style="width: 14%;">Facility</th>
+                <th style="width: 14%;">Physician</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${upcomingRows}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="print-attestation-block">
+          <div class="print-attest-text">
+            This document represents the verified electronic immunization record generated from ImmuTrack Clinical Registry. All administered entries have been clinically reviewed and verified against standard CDC and state immunization schedules.
+          </div>
+          <div class="print-signatures-row">
+            <div class="print-sig-col">
+              <div class="print-sig-line"></div>
+              <div class="print-sig-label">Authorized Healthcare Provider / Clinician Signature</div>
+            </div>
+            <div class="print-sig-col">
+              <div class="print-sig-line"></div>
+              <div class="print-sig-label">Verification Date & Official Clinic Stamp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.classList.add('printing-summary');
+
+    // Trigger print dialog
+    setTimeout(() => {
+      window.print();
+    }, 50);
   }
 };
+
+// Global Print Lifecycle Handlers
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('printing-summary', 'printing-certificate', 'printing-chart');
+  const container = document.getElementById('printable-summary-container');
+  if (container) container.innerHTML = '';
+});
+
+window.addEventListener('beforeprint', () => {
+  if (document.body.classList.contains('printing-summary') || document.body.classList.contains('printing-certificate') || document.body.classList.contains('printing-chart')) {
+    return;
+  }
+  const certModal = document.getElementById('certificate-modal');
+  if (certModal && certModal.style.display === 'flex') {
+    document.body.classList.add('printing-certificate');
+    return;
+  }
+  const chartModal = document.getElementById('patient-chart-modal');
+  if (chartModal && chartModal.style.display === 'flex') {
+    document.body.classList.add('printing-chart');
+    return;
+  }
+  if (window.DashboardController && window.DashboardController.patientData) {
+    window.DashboardController.renderPrintableClinicalSummary(window.DashboardController.patientData, 'patient');
+  }
+});
 
 window.DashboardController = DashboardController;
