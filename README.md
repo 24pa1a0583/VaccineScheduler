@@ -1,398 +1,253 @@
-# 💉 ImmuTrack — Clinical Vaccine Scheduler & Immunization Management System
+# 💉 ImmuTrack — Vaccine Scheduler & Immunization Manager
+
+> **A user-friendly, modern clinical platform for healthcare doctors and patients to schedule, track, and manage vaccinations with real-time alerts, Google Calendar reminders, and direct WhatsApp/SMS sharing.**
 
 [![Node.js](https://img.shields.io/badge/Node.js-v16+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB Atlas](https://img.shields.io/badge/MongoDB%20Atlas-Cloud%20Database-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
-[![UI](https://img.shields.io/badge/Design-Soft%20Neumorphic%20Medical-26B9AA)](https://github.com/24pa1a0583/VaccineScheduler)
-[![Deployment](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=white)](https://render.com)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
-A state-of-the-art, full-stack Clinical Vaccine Scheduling and Immunization Lifecycle Management platform built for healthcare clinicians, pediatricians, and patients. Featuring a soft neumorphic medical aesthetic, live MongoDB Atlas synchronization, dynamic overdue detection with glowing red alert lights, self-administration in the patient portal, direct messaging to unsaved numbers via WhatsApp and SMS, and pinpoint Google Calendar reminders.
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB%20Atlas-Live%20Database-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![Design](https://img.shields.io/badge/UI-Soft%20Neumorphic%20Medical-26B9AA)](https://github.com/24pa1a0583/VaccineScheduler)
 
 ---
 
-## 📑 Table of Contents
+## ⚡ Quick Start: Running the App in 3 Steps
 
-- [Core Feature Explanation](#-core-feature-explanation)
-  - [1. Doctor & Clinician Portal](#1-doctor--clinician-portal)
-  - [2. Patient Portal & Personal Immunization Pass](#2-patient-portal--personal-immunization-pass)
-  - [3. Dynamic Overdue Detection & Glowing Red Alert Lighting](#3-dynamic-overdue-detection--glowing-red-alert-lighting)
-  - [4. Patient Self-Administration Option](#4-patient-self-administration-option)
-  - [5. Direct Unsaved Contact Sharing (WhatsApp, SMS, GMail)](#5-direct-unsaved-contact-sharing-whatsapp-sms-gmail)
-  - [6. Google Calendar Pinpoint Reminders](#6-google-calendar-pinpoint-reminders)
-  - [7. Design System & Soft Neumorphic Medical UI](#7-design-system--soft-neumorphic-medical-ui)
-  - [8. Authentication & MongoDB Atlas Architecture](#8-authentication--mongodb-atlas-architecture)
-- [How to Run the Application](#-how-to-run-the-application)
-  - [Prerequisites](#prerequisites)
-  - [Local Installation & Setup](#local-installation--setup)
-  - [Environment Variables Configuration](#environment-variables-configuration)
-  - [Running Locally](#running-locally)
-- [Cloud Deployment (Render)](#-cloud-deployment-render)
-  - [Option A: Deploy with Blueprint (`render.yaml`) — Recommended](#option-a-deploy-with-blueprint-renderyaml--recommended)
-  - [Option B: Manual Web Service Setup](#option-b-manual-web-service-setup)
-  - [⚠️ Critical MongoDB Atlas Network Access Setting](#️-critical-mongodb-atlas-network-access-setting)
-- [Demo Credentials](#-demo-credentials)
-- [API Reference](#-api-reference)
-- [Project Directory Structure](#-project-directory-structure)
+If you want to run this application on your computer right away, follow these 3 simple steps:
 
----
-
-## 🌟 Core Feature Explanation
-
-### 1. Doctor & Clinician Portal
-The Doctor Portal provides an Electronic Health Record (EHR) command center for managing clinical caseloads, scheduling vaccinations, tracking patient histories, and monitoring compliance metrics.
-
-- **Real-Time Clinical Statistics**:
-  - **Total Caseload**: Total active patients managed by the clinician.
-  - **Compliance Rate**: Percentage of patients up-to-date with recommended immunizations.
-  - **Overdue Recalls**: Automatically tallied count of patients whose scheduled vaccination times have lapsed without administration.
-  - **High-Risk Caseload**: Patients flagged with medical conditions, prematurity, or documented allergies.
-  - **Scheduled Today**: Pinpoint count of patients with appointments scheduled for the current date.
-- **Roster Management & Multi-Filter System**:
-  - Filter by **All Patients**, **Overdue Recalls**, **Upcoming Confirmed Appointments**, and **Fully Administered**.
-  - Real-time patient search by legal name, MRN (Medical Record Number), or contact details.
-  - Sorting by compliance rate, patient name, or scheduled appointment slot.
-- **Complete Patient Chart Modal**:
-  - Clinical overview displaying legal name, calculated age with pediatric/adult categorization, DOB, blood group, gender, 10-digit mobile number, emergency contact, email address, allergies, and chronic conditions.
-  - **3-Way Tabbed Schedule**:
-    - **All Vaccines**: Chronological timeline of all doses.
-    - **Pending Schedule**: Scheduled and overdue vaccine doses with administration and editing controls.
-    - **Administered Ledger**: Complete verified history with clinician signatures, lot numbers, anatomical injection sites, and timestamps.
-- **Comprehensive Patient & Schedule Editing**:
-  - Edit demographics directly from the patient chart or roster table (Legal Name, DOB, Gender, Blood Group, Allergies, Emergency Contact, GMail, 10-digit Phone).
-  - Update vaccine formulation, dose, scheduled date, scheduled time, urgency tier, and clinical contraindications.
-- **Enroll & Schedule New Patients**:
-  - Add existing patients or register brand-new patients with custom facilities and departments (with dedicated "Other" input support).
-  - Strict 10-digit mobile number validation ensures clean contact records without messy formatting.
-
----
-
-### 2. Patient Portal & Personal Immunization Pass
-Patients log into a dedicated self-service portal designed to make immunization management transparent and effortless.
-
-- **Digital Smart Health Pass**:
-  - Displays Medical Record Number (MRN), primary clinic, attending physician, blood group badge, and overall compliance score.
-  - Real-time demographic card showing dynamic age calculation, address, insurance policy details, and documented allergy warnings.
-- **Clean-Sheet Architecture**:
-  - Demo patients (`patient@immu-track.org`) load realistic clinical demo history for evaluation.
-  - Newly registered patients start with a completely pristine, clean sheet (0 records) strictly scoped to their own account.
-- **Appointment Scheduling**:
-  - Patients can schedule new appointments, selecting the vaccine, dose, preferred date, time slot, healthcare clinic, and optional notes.
-- **Appointment Rescheduling & Cancellation**:
-  - Patients can reschedule or update appointment details anytime prior to administration.
-  - Ability to cancel scheduled appointments with instant database synchronization.
-
----
-
-### 3. Dynamic Overdue Detection & Glowing Red Alert Lighting
-A core clinical principle of VaccineScheduler is that **vaccines are never automatically assumed to be administered**.
-
-- **Why Time-Expiry Alone Does Not Administer**:
-  - In real-world healthcare, passing a scheduled appointment time does not mean the patient received the shot. If an appointment is scheduled for `10:00 AM` and the time passes without clinician or patient confirmation, the vaccine is **Overdue**, not completed.
-- **Dynamic Overdue Evaluation (`isDoseOverdue`)**:
-  - The system evaluates the exact scheduled date and time against the current timestamp.
-  - If the appointment time is in the past and the vaccine has not been confirmed as administered, its status automatically transitions to **Overdue**.
-- **Visual Overdue Alert Light**:
-  - In both Doctor and Patient portals, overdue rows, chart cards, and patient passes pulse with a high-visibility neon red colored light (`animation: redAlertPulse 2s infinite ease-in-out`).
-  - Highlights border outlines with `2px solid #ef4444`, `border-left: 6px solid #dc2626`, and a pulsating red glow (`box-shadow: 0 0 24px rgba(239, 68, 68, 0.85)`).
-  - Overdue badges display `🚨 Overdue Appointment` or `🚨 Lapsed Clinical Action Required`.
-
----
-
-### 4. Patient Self-Administration Option
-Patients now have full agency to record administered immunizations directly from their portal.
-
-- **"💉 Administer Dose" Button**:
-  - Available on all upcoming and overdue vaccine cards in the Patient Portal.
-- **Confirmation & Verification Flow**:
-  - When the patient takes their vaccine (e.g. at an external clinic or walk-in appointment), they click **"💉 Administer Dose"**.
-  - A confirmation modal verifies the vaccine name, dose number, and scheduled slot.
-  - Upon confirmation, the backend endpoint `POST /api/data/patient-me/doses/:doseId/administer`:
-    1. Removes the dose from the active/overdue list.
-    2. Generates an official administration timestamp (e.g., `Oct 26, 2026 • 10:30 AM`).
-    3. Issues a verified batch lot number (e.g. `LOT-PAT-1041-2026`).
-    4. Records the administering clinic and attending clinician.
-    5. Appends the record to the **Verified Administered Vaccines (Completed History)** ledger.
-    6. Automatically recalculates the patient's compliance score.
-    7. Synchronizes changes with the clinician's master roster.
-
----
-
-### 5. Direct Unsaved Contact Sharing (WhatsApp, SMS, GMail)
-Clinicians and patients can share vaccine notices and overdue recall alerts across multiple messaging channels without saving phone numbers into device contacts.
-
-- **Official Vector Logos**:
-  - Uses original SVG vector logos for **Google GMail**, **WhatsApp**, **WhatsApp Web**, **Google Messages (SMS)**, and **Universal Device Share** (replacing generic emojis).
-- **Zero-Contact-Required Messaging**:
-  - **WhatsApp Click-to-Chat**: Uses the official WhatsApp API `https://api.whatsapp.com/send/?phone=<intlNumber>&text=<encodedMessage>&type=phone_number&app_absent=0`. Formats the 10-digit number into international standard with country code (e.g. `919876543210`), opening a brand-new chat immediately without requiring the recipient to be saved in phone contacts.
-  - **WhatsApp Web Button**: Dedicated desktop browser link `https://web.whatsapp.com/send?phone=...` for clinicians operating from clinic desktop PCs.
-  - **RFC 5724 Native SMS**: Generates native SMS URIs (`sms:<number>?body=...` on Android/Windows/Mac, `sms:<number>&body=...` on iOS) to immediately launch the default messaging app with unsaved recipient pre-filled.
-  - **GMail & Mailto**: Directly launches the official GMail compose window with recipient email, subject line, and structured clinical notification body.
-  - **Web Share API**: Native device share sheet integration for sharing to Telegram, Signal, AirDrop, or Notes on supported mobile and tablet browsers.
-- **Pre-Populated Clinical Notice**:
-  - Message includes Patient Legal Name, Scheduled / Lapsed Slot, Vaccine Formulation, Dose Number, Health Facility, and Attending Doctor.
-
----
-
-### 6. Google Calendar Pinpoint Reminders
-- Each scheduled upcoming vaccination card in the Patient Portal includes an **"Add to Google Calendar"** button featuring the official 4-color Google Calendar logo.
-- Automatically computes exact ISO-8601 start and end timestamps from the appointment date and time slot.
-- Generates a Google Calendar event URL containing:
-  - Event title (e.g. `💉 Vaccination Appointment: MMR Booster (Dose 2 Booster)`).
-  - Facility location (e.g. `Swedish Medical Center — Pediatric Specialty Clinic`).
-  - Pre-filled reminder notes instructing the patient to bring their digital health pass.
-
----
-
-### 7. Design System & Soft Neumorphic Medical UI
-- **Aesthetic Philosophy**: Clean, soft neumorphic medical design tailored for clinical clarity, low eye strain, and visual delight.
-- **Color Palette**:
-  - Primary Teal (`#26B9AA`, `#10B981`) for health and wellness.
-  - Deep Slate (`#0F172A`, `#1E293B`) for crisp, readable clinical typography.
-  - Soft Light Background (`#F8FAFC` to `#F1F5F9`) with convex/concave neumorphic drop shadows (`var(--neo-raised)`).
-  - Glowing Neon Coral/Red (`#EF4444`, `#DC2626`) reserved strictly for urgent overdue recalls.
-- **Micro-Animations & Feedback**:
-  - Smooth hover elevations (`translateY(-2px)`).
-  - Toast notification system with success, error, info, and warning states.
-  - Interactive password strength meter during registration.
-
----
-
-### 8. Authentication & MongoDB Atlas Architecture
-- **JWT (JSON Web Token)**: Stateless authentication via `Bearer` tokens stored securely in client storage.
-- **Role-Based Access Control (RBAC)**:
-  - Separate access scopes for `doctor` and `patient` accounts.
-  - Doctors access clinical caseloads, chart editing, and patient rosters.
-  - Patients access personal health passes, self-scheduling, and verified completed histories.
-- **MongoDB Atlas Integration**:
-  - Powered by Mongoose ODM connected directly to MongoDB Atlas.
-  - Native connection retry resilience (`connectDB` with exponential backoff).
-  - Replaces all legacy Firestore dependencies with pure MongoDB collections (`users` and `patientrecords`).
-
----
-
-## 💻 How to Run the Application
-
-### Prerequisites
-
-Ensure you have the following installed on your machine:
-- **Node.js** (v16.0.0 or higher recommended, tested on v18, v20, and v24)
-- **npm** (v8.0.0 or higher)
-- **Git**
-
----
-
-### Local Installation & Setup
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/24pa1a0583/VaccineScheduler.git
-   cd VaccineScheduler
-   ```
-
-2. **Install Node Dependencies**:
-   ```bash
-   npm install
-   ```
-
----
-
-### Environment Variables Configuration
-
-Create a `.env` file in the root directory (you can copy `.env.example`):
-
+### 1. Clone the repository
+Open your terminal (Command Prompt, PowerShell, or Terminal) and run:
 ```bash
-cp .env.example .env
+git clone https://github.com/24pa1a0583/VaccineScheduler.git
+cd VaccineScheduler
 ```
 
-Ensure your `.env` contains:
-
-```env
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-
-# JWT Secret for Session Authentication
-JWT_SECRET=super_secret_vaccine_scheduler_jwt_key_2026_secure
-
-# MongoDB Atlas Connection URI
-MONGODB_URI=mongodb+srv://24pa1a0583_db_user:TzIs18L2T1TYiEoy@vaccinescheduler.czkuwcd.mongodb.net/vaccinescheduler?retryWrites=true&w=majority
+### 2. Install dependencies
+```bash
+npm install
 ```
 
-> [!NOTE]
-> If you have your own MongoDB Atlas cluster, you can replace the `MONGODB_URI` with your own connection string.
+### 3. Start the application
+```bash
+npm start
+```
 
----
-
-### Running Locally
-
-1. **Start the Application**:
-   ```bash
-   npm start
-   ```
-
-   *Or for development with automatic server restarts:*
-   ```bash
-   npm run dev
-   ```
-
-2. **Open in Browser**:
-   Navigate to:
-   ```text
-   http://localhost:3000
-   ```
-
-3. **Check Server Health**:
-   Verify backend and database connectivity by visiting:
-   ```text
-   http://localhost:3000/api/health
-   ```
-   *Expected Response:*
-   ```json
-   {
-     "status": "healthy",
-     "database": "connected",
-     "timestamp": "2026-10-26T10:25:00.000Z"
-   }
-   ```
-
----
-
-## 🚀 Cloud Deployment (Render)
-
-VaccineScheduler is production-ready for deployment on [Render](https://render.com/).
-
-### Option A: Deploy with Blueprint (`render.yaml`) — Recommended
-
-1. Push your repository to GitHub.
-2. Log in to [dashboard.render.com](https://dashboard.render.com/).
-3. Click **New +** in the top navigation bar and select **Blueprint**.
-4. Connect your GitHub repository `24pa1a0583/VaccineScheduler`.
-5. Render will automatically detect [`render.yaml`](render.yaml) and configure:
-   - **Service Name**: `vaccinescheduler`
-   - **Runtime**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Health Check Path**: `/api/health`
-   - **Environment Variables**:
-     - `NODE_ENV`: `production` (auto-configured)
-     - `JWT_SECRET`: auto-generated cryptographically secure secret
-6. When prompted for `MONGODB_URI`, paste your MongoDB Atlas connection string:
-   ```env
-   mongodb+srv://24pa1a0583_db_user:TzIs18L2T1TYiEoy@vaccinescheduler.czkuwcd.mongodb.net/vaccinescheduler?retryWrites=true&w=majority
-   ```
-7. Click **Apply**. Render will build and deploy your application.
-
----
-
-### Option B: Manual Web Service Setup
-
-1. On [Render Dashboard](https://dashboard.render.com/), click **New +** &rarr; **Web Service**.
-2. Connect your GitHub repository.
-3. Configure the settings:
-   - **Name**: `vaccinescheduler`
-   - **Region**: Any (e.g. `Oregon (US West)` or `Singapore`)
-   - **Branch**: `main`
-   - **Runtime**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-   - **Plan**: `Free`
-4. Under **Environment Variables**, add:
-   | Key | Value |
-   |---|---|
-   | `NODE_ENV` | `production` |
-   | `JWT_SECRET` | `super_secret_vaccine_scheduler_jwt_key_2026_secure` |
-   | `MONGODB_URI` | `mongodb+srv://24pa1a0583_db_user:TzIs18L2T1TYiEoy@vaccinescheduler.czkuwcd.mongodb.net/vaccinescheduler?retryWrites=true&w=majority` |
-5. Click **Create Web Service**.
-
----
-
-### ⚠️ Critical MongoDB Atlas Network Access Setting
-
-Render cloud instances use dynamic outbound IP addresses. To prevent MongoDB connection timeout errors on Render:
-1. Go to your [MongoDB Atlas Console](https://cloud.mongodb.com/).
-2. In the left navigation menu under **Security**, click **Network Access**.
-3. Click **Add IP Address**.
-4. Select **Allow Access from Anywhere** (`0.0.0.0/0`).
-5. Click **Confirm**.
-
----
-
-## 🩺 Demo Credentials
-
-Pre-seeded accounts are provided to immediately explore both Doctor and Patient experiences:
-
-| Role | Email Address | Password | Key Features to Test |
-|---|---|---|---|
-| **Doctor / Clinician** | `doctor@immu-track.org` | `Doctor@123` | Patient Roster, Overdue Recalls, Full Demographic/Schedule Editor, Patient Chart modal, Multi-Channel Share, Lot Logging |
-| **Patient** | `patient@immu-track.org` | `Patient@123` | Digital Health Pass, Upcoming & Overdue View, **"💉 Administer Dose"** button, Google Calendar integration, Reschedule/Cancel |
+Now open your web browser (Chrome, Edge, Safari, Firefox) and navigate to:
+```text
+http://localhost:3000
+```
 
 > [!TIP]
-> You can also click **"Create an Account"** on the login screen to register your own new Doctor or Patient account with custom department/hospital fields!
+> **No database setup is required!** The application is pre-connected to a live MongoDB Atlas cloud database with instant demo accounts ready to test.
 
 ---
 
-## 🔌 API Reference
+## 🔑 Ready-to-Use Demo Accounts
 
-### Authentication Endpoints (`/api/auth`)
+You can log in immediately using either of the two demo profiles:
 
-| Method | Endpoint | Description | Auth Required |
+| Account Type | Email | Password | What You Will Experience |
 |---|---|---|---|
-| `POST` | `/api/auth/register` | Register a new Doctor or Patient account | No |
-| `POST` | `/api/auth/login` | Authenticate and receive JWT session token | No |
-| `GET` | `/api/auth/me` | Fetch authenticated user profile | Yes |
-| `PUT` | `/api/auth/profile` | Update user profile details | Yes |
-| `POST` | `/api/auth/seed-demo` | Re-seed demo doctor and patient records | No |
+| **🩺 Doctor Portal** | `doctor@immu-track.org` | `Doctor@123` | Clinical caseload metrics, patient roster, full chart editing, overdue recall tracking, and 1-click dose administration. |
+| **👤 Patient Portal** | `patient@immu-track.org` | `Patient@123` | Digital Health Pass, upcoming appointments, **"💉 Administer Dose"** button, Google Calendar sync, and verified immunization history. |
 
-### Clinical & Patient Data Endpoints (`/api/data`)
-
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|---|
-| `GET` | `/api/data/patients` | Fetch clinician's patient roster and live caseload statistics | Doctor |
-| `GET` | `/api/data/patients/:id/chart` | Fetch complete patient chart with pending and administered doses | Doctor |
-| `POST` | `/api/data/patients/schedule-new` | Schedule dose for existing patient or enroll brand-new patient | Doctor |
-| `POST` | `/api/data/patients/administer-vaccine` | Clinician logs and administers specific pending vaccine | Doctor |
-| `POST` | `/api/data/patients/record-dose` | Quick 1-click dose administration row action | Doctor |
-| `PUT` | `/api/data/patients/:id/schedule` | Edit patient demographics and full scheduled dose info | Doctor |
-| `PUT` | `/api/data/patients/:id/pending-dose/:doseId` | Edit specific pending vaccine details in patient chart | Doctor |
-| `DELETE` | `/api/data/patients/:id` | Remove patient from clinical registry | Doctor |
-| `DELETE` | `/api/data/patients/:id/pending-dose/:doseId` | Delete specific pending dose from patient chart | Doctor |
-| `GET` | `/api/data/patient-me` | Fetch authenticated patient's personal schedule and health pass | Patient |
-| `POST` | `/api/data/patient-me/schedule` | Patient schedules new upcoming vaccination appointment | Patient |
-| `POST` | `/api/data/patient-me/doses/:doseId/administer` | **Patient explicitly administers their own upcoming/overdue dose** | Patient |
-| `PUT` | `/api/data/patient-me/doses/:doseId` | Patient reschedules or edits upcoming appointment | Patient |
-| `DELETE` | `/api/data/patient-me/doses/:doseId` | Patient cancels upcoming appointment | Patient |
-| `GET` | `/api/health` | System health check (MongoDB connectivity & uptime) | No |
+*You can also click **"Create an Account"** on the login page to register your own custom Doctor or Patient profile!*
 
 ---
 
-## 📁 Project Directory Structure
+## 📖 User Guide: The Doctor's Perspective
 
-```text
-VaccineScheduler/
-├── public/
-│   ├── css/
-│   │   ├── auth.css          # Neumorphic login/register styles & strength meter
-│   │   └── dashboard.css     # Clinical dashboard, red glowing alert light, modals
-│   ├── js/
-│   │   ├── api.js            # Frontend REST client with JWT interceptor
-│   │   ├── auth.js           # Client authentication & form handlers
-│   │   └── dashboard.js      # Main dashboard controller, sharing, calendar, administer
-│   └── index.html            # Single Page Application HTML5 markup
-├── server/
-│   ├── routes/
-│   │   ├── auth.js           # Authentication & registration endpoints
-│   │   └── data.js           # Clinical roster, patient-me, and administer endpoints
-│   ├── db.js                 # MongoDB Atlas Mongoose connection & schema models
-│   └── index.js              # Express server entry point & static file serving
-├── render.yaml               # Render Blueprint infrastructure-as-code specification
-├── .env.example              # Sample environment variables configuration
-├── package.json              # Project dependencies and npm scripts
-└── README.md                 # Complete project documentation & guide
+As a doctor, pediatrician, or clinic administrator, the application gives you an Electronic Health Record (EHR) command center to manage your patient caseload efficiently.
+
 ```
+[Doctor Login] ➔ [Caseload Overview] ➔ [Patient Roster] ➔ [Patient Chart Modal] ➔ [Administer / Share]
+```
+
+### 1. Understanding Your Clinical Caseload Overview
+At the top of your dashboard, five live metric cards summarize your practice:
+- **Total Caseload**: Total active patients currently under your care.
+- **Compliance Rate**: Percentage of your patients who are fully up-to-date with their vaccinations.
+- **Overdue Recalls**: Number of patients who missed their scheduled vaccine date/time and need urgent follow-up.
+- **High-Risk Caseload**: Patients flagged with premature birth history, chronic conditions, or documented allergies.
+- **Scheduled Today**: Total appointments due for immunization today.
+
+---
+
+### 2. Finding & Filtering Patients
+Use the roster search bar and filter tabs to quickly find any patient:
+- **Search**: Type any part of a patient's legal name, Medical Record Number (MRN), or phone number.
+- **Filter Tabs**:
+  - **All Patients**: Your complete patient directory.
+  - **Overdue Recalls**: Filters strictly to patients with lapsed, unadministered vaccines.
+  - **Upcoming**: Patients with confirmed future appointments.
+  - **Administered**: Patients whose recommended vaccines are complete.
+
+---
+
+### 3. Enrolling a New Patient or Scheduling an Immunization
+Click the **"➕ Enroll New Patient"** button at the top right:
+1. Enter the patient's legal name, date of birth, gender, and blood group.
+2. Enter their primary contact mobile number (strictly 10 digits) and optional emergency contact.
+3. Select their assigned department and facility (if your clinic isn't listed, choose **"➕ Other"** to type your custom clinic name!).
+4. Choose the vaccine formulation, dose number, scheduled date, and time slot.
+5. Click **"Save Patient Record & Schedule Dose"**. The patient is instantly saved to MongoDB and added to your roster.
+
+---
+
+### 4. Opening a Patient's Complete Clinical Chart
+Click on any patient's row in the roster to open their full clinical chart modal:
+- **Demographics & Clinical Alerts**: Review legal name, age (automatically calculated into pediatric/adult categories), blood group, allergies, and contraindications.
+- **Timeline & Schedule**:
+  - **All**: Complete view of past and upcoming vaccines.
+  - **Pending Schedule**: Scheduled or overdue doses with controls to edit or administer.
+  - **Administered History**: Verified records with clinician signatures, lot numbers, injection routes (e.g. Intramuscular Deltoid), and timestamps.
+
+---
+
+### 5. Editing Patient Information & Schedules
+Need to correct a spelling, update a phone number, or change an appointment date?
+- Click the **"✏️" (Edit)** button on any patient in the roster or inside the patient chart modal.
+- An interactive editor opens with all fields pre-filled:
+  - Patient legal name, DOB, gender, blood group, allergies.
+  - Primary 10-digit mobile, emergency contact, and GMail address.
+  - Vaccine name, dose, scheduled date, time slot, and clinical urgency.
+- Click **"Save Changes"** to update both the patient chart and the database immediately.
+
+---
+
+### 6. Administering a Vaccine Dose (Recording Completion)
+In VaccineScheduler, **vaccines are never marked as completed automatically**. An appointment only becomes completed when a doctor or patient confirms it:
+- Click the **"💉" (Syringe Icon)** on the patient row, or click **"💉 Administer Dose Now"** inside their chart.
+- The system automatically:
+  1. Removes the dose from the pending/overdue list.
+  2. Generates an official date and time stamp (e.g., `Oct 26, 2026 • 10:30 AM`).
+  3. Assigns an official batch lot number.
+  4. Moves the dose to the **Administered History** ledger.
+  5. Updates the patient's compliance score.
+
+---
+
+### 7. Sharing Vaccination Notices to Patients
+Click the **"📤 Share"** button on any patient record or scheduled dose:
+- **No Contact Saving Required!** You do **not** need to save the patient's phone number into your device contacts:
+  - **WhatsApp**: Click the green WhatsApp button to open a new chat with the patient immediately via WhatsApp's direct Click-to-Chat API.
+  - **WhatsApp Web**: Click to open a direct chat tab in your desktop browser.
+  - **Google Messages / SMS**: Click to open your device's native SMS app with the unsaved recipient and notice pre-filled.
+  - **GMail**: Opens a pre-formatted clinical notification email ready to send.
+  - **Universal Share**: Opens your phone/tablet's native share menu.
+
+---
+
+## 👤 User Guide: The Patient's Perspective
+
+As a patient or parent, the Patient Portal gives you transparent, 24/7 access to your immunization records and lets you manage your appointments with complete confidence.
+
+```
+[Patient Login] ➔ [Digital Health Pass] ➔ [Schedule Appointment] ➔ [Google Calendar Sync] ➔ [Self-Administer]
+```
+
+### 1. Your Digital Smart Health Pass
+When you log in, your personal Digital Pass displays:
+- **Medical Record Number (MRN)** and primary clinic.
+- **Dynamic Age**: Calculated precisely from your Date of Birth (e.g. `Pediatric (3y)` or `Adult (24y)`).
+- **Blood Group & Allergies**: Critical health alerts prominently displayed.
+- **Overall Compliance Score**: Progress meter showing your vaccination completeness (e.g. `100% Complete`).
+
+---
+
+### 2. Scheduling a New Vaccine Appointment
+Want to schedule a routine booster, seasonal flu shot, or travel vaccine?
+1. Click **"➕ Schedule New Vaccine"** on your dashboard.
+2. Select or type the vaccine name and dose.
+3. Pick your preferred appointment date and time.
+4. Select your clinic or health facility.
+5. Add optional notes (e.g., "Egg allergy formulation needed").
+6. Click **"Confirm & Add Vaccine Appointment"**.
+
+---
+
+### 3. Adding 1-Click Reminders to Google Calendar
+Never forget a vaccination appointment:
+- On any upcoming scheduled vaccine card, click the **"Add to Google Calendar"** button (with the official Google Calendar icon).
+- A new Google Calendar event opens automatically with:
+  - The exact start and end times pre-calculated.
+  - Event title: `💉 Vaccination Appointment: [Vaccine Name]`.
+  - Clinic address pre-filled as the location.
+  - Notes reminding you to bring your digital health pass.
+- Simply click **"Save"** in Google Calendar!
+
+---
+
+### 4. What Happens if You Miss an Appointment? (🚨 Overdue Alert)
+- If your scheduled appointment date and time have passed and you have not confirmed taking the shot, the application **does not assume you took it**.
+- Instead, it moves the appointment into a dedicated **🚨 Overdue Vaccines (Scheduled Time Has Passed)** section.
+- The card pulses with a **neon red glowing alert light**, letting you know immediate action is required.
+- You have two direct options:
+  1. **"💉 Administer Dose"**: If you already took the vaccine (e.g. at a walk-in clinic), click this button to record it.
+  2. **"✏️ Reschedule / Edit"**: Click to pick a new date and time that fits your schedule.
+
+---
+
+### 5. How to Administer a Vaccine (Recording Your Shot)
+When you receive your vaccine:
+1. Find the vaccine under your Scheduled or Overdue section.
+2. Click the green **"💉 Administer Dose"** button.
+3. A confirmation dialog appears asking you to confirm administration.
+4. Click **"OK"**.
+5. The vaccine instantly moves from the active schedule into your **📜 Verified Administered Vaccines (Completed History)** table with an official timestamp, clinician credit, and verified EHR status!
+
+---
+
+### 6. Rescheduling or Cancelling Appointments
+- **To Reschedule**: Click **"✏️ Reschedule / Edit"** on any upcoming dose card, adjust the date, time, clinic, or notes, and save.
+- **To Cancel**: Click **"🗑️ Cancel Appointment"** and confirm. The appointment is removed from both your portal and your doctor's schedule.
+
+---
+
+## 🌟 Key Feature Breakdown
+
+### 📱 Zero-Contact WhatsApp & SMS Direct Chat
+- **The Problem in Healthcare**: Doctors and clinic staff frequently have to send reminders to hundreds of patients, but saving every patient's mobile number into phone contacts is time-consuming and clutters the device address book.
+- **Our Solution**: ImmuTrack formats the patient's 10-digit number into international format (with a country code selector like `+91`, `+1`, `+44`) and uses direct deep-linking (`api.whatsapp.com/send/?phone=...` and RFC 5724 `sms:...`). It opens a direct, private chat thread immediately without saving the number.
+
+### 🚨 Pulsing Red Glowing Alert Light for Overdue Recalls
+- Overdue vaccines are highlighted with an active glowing red light animation (`@keyframes redAlertPulse`).
+- Neon red borders pulse continuously on overdue roster rows, chart modal cards, and patient passes, ensuring missed immunizations are never overlooked.
+
+### 🛡️ Clean Sheet Architecture for New Users
+- When a new patient registers on the platform, they start with a completely pristine, empty record sheet tailored strictly to them.
+- Demo accounts (`patient@immu-track.org`) retain realistic sample data for instant demonstration and testing.
+
+### 🎨 Soft Neumorphic Medical Aesthetic
+- Custom-crafted medical UI combining soft extruded shadows, crisp typography, responsive layout, and distinct color indicators (Teal for healthy compliance, Emerald for verified administration, and Pulsing Red for urgent overdue recalls).
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+#### Q: Why did my scheduled vaccine move into the "Overdue" section?
+> **A:** Vaccines are only marked as completed when someone explicitly clicks the Administer button. If the appointment date and time have passed and you haven't clicked "Administer Dose", the app treats it as overdue to alert you that the shot was missed or needs recording.
+
+#### Q: How do I mark an overdue vaccine as completed?
+> **A:** Simply click the green **"💉 Administer Dose"** button on that vaccine card in either the Patient Portal or Doctor Portal. Confirm the prompt, and it will immediately move to the Verified Administered ledger.
+
+#### Q: Do I need to install WhatsApp Web or save contacts to use the share feature?
+> **A:** No! Clicking the WhatsApp button directly opens WhatsApp on your phone or computer and starts a chat with the unsaved number. You can also use the SMS button to text without saving contacts.
+
+#### Q: Can I run this without internet access?
+> **A:** The backend server and frontend code run locally on your computer. However, an internet connection is needed for the live cloud MongoDB Atlas database connection.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Backend**: Node.js & Express.js
+- **Database**: MongoDB Atlas (Mongoose ODM)
+- **Frontend**: Semantic HTML5 & Vanilla JavaScript
+- **Styling**: Vanilla CSS3 with Soft Neumorphic Design System & Keyframe Animations
+- **Authentication**: Stateless JSON Web Tokens (JWT) & bcrypt password hashing
+- **Deployment**: Ready for Render (`render.yaml` Blueprint included)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**. Feel free to use, modify, and distribute this software for clinical, educational, or commercial applications.
+This project is licensed under the **MIT License**. You are free to use, modify, and distribute it for clinical, personal, educational, or commercial applications.
