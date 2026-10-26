@@ -141,6 +141,32 @@ const DashboardController = {
     this.btnClosePatEditModal = document.getElementById('btn-close-pat-edit-modal');
     this.btnCancelPatEdit = document.getElementById('btn-cancel-pat-edit');
     this.patientEditDoseForm = document.getElementById('patient-edit-dose-form');
+
+    // Doctor Appointment Requests Modal Elements
+    this.btnDocRequestsModal = document.getElementById('btn-doc-requests-modal');
+    this.docPendingRequestsBadge = document.getElementById('doc-pending-requests-badge');
+    this.docRequestsModal = document.getElementById('doctor-requests-modal');
+    this.btnCloseDocRequestsModal = document.getElementById('btn-close-doctor-requests-modal');
+    this.btnDoneDocRequests = document.getElementById('btn-done-doctor-requests');
+    this.docRequestsListContainer = document.getElementById('doctor-requests-list-container');
+    this.tabDocRequestsPending = document.getElementById('tab-doc-requests-pending');
+    this.tabDocRequestsAll = document.getElementById('tab-doc-requests-all');
+    this.docModalPendingBadge = document.getElementById('doc-modal-pending-count-badge');
+    this.activeDocRequestsTab = 'pending';
+
+    // Patient Notifications Modal Elements
+    this.btnPatientNotificationsModal = document.getElementById('btn-patient-notifications-modal');
+    this.patientNotificationsBadge = document.getElementById('patient-notifications-badge');
+    this.patientNotificationsModal = document.getElementById('patient-notifications-modal');
+    this.btnClosePatientNotificationsModal = document.getElementById('btn-close-patient-notifications-modal');
+    this.btnDonePatientNotifications = document.getElementById('btn-done-patient-notifications');
+    this.btnMarkPatientNotifsRead = document.getElementById('btn-mark-patient-notifs-read');
+    this.patientNotificationsListContainer = document.getElementById('patient-notifications-list-container');
+    this.patientModalUnreadBadge = document.getElementById('patient-modal-unread-badge');
+
+    // Patient Schedule Doctor Elements
+    this.patSchedDoctor = document.getElementById('pat-sched-doctor');
+    this.patSchedDoctorInfoCard = document.getElementById('pat-sched-doctor-info-card');
   },
 
   bindEvents() {
@@ -541,6 +567,57 @@ const DashboardController = {
         await this.handlePatientScheduleSubmit();
       };
     }
+
+    // Doctor Appointment Requests Modal Triggers
+    if (this.btnDocRequestsModal) {
+      this.btnDocRequestsModal.onclick = () => this.openDoctorRequestsModal();
+    }
+    const closeDocRequestsModal = () => {
+      if (this.docRequestsModal) this.docRequestsModal.style.display = 'none';
+    };
+    if (this.btnCloseDocRequestsModal) this.btnCloseDocRequestsModal.onclick = closeDocRequestsModal;
+    if (this.btnDoneDocRequests) this.btnDoneDocRequests.onclick = closeDocRequestsModal;
+    if (this.docRequestsModal) {
+      this.docRequestsModal.onclick = (e) => {
+        if (e.target === this.docRequestsModal) closeDocRequestsModal();
+      };
+    }
+    if (this.tabDocRequestsPending) {
+      this.tabDocRequestsPending.onclick = () => {
+        this.activeDocRequestsTab = 'pending';
+        this.tabDocRequestsPending.classList.add('active');
+        if (this.tabDocRequestsAll) this.tabDocRequestsAll.classList.remove('active');
+        this.renderDoctorRequestsList();
+      };
+    }
+    if (this.tabDocRequestsAll) {
+      this.tabDocRequestsAll.onclick = () => {
+        this.activeDocRequestsTab = 'all';
+        this.tabDocRequestsAll.classList.add('active');
+        if (this.tabDocRequestsPending) this.tabDocRequestsPending.classList.remove('active');
+        this.renderDoctorRequestsList();
+      };
+    }
+
+    // Patient Notifications Modal Triggers
+    if (this.btnPatientNotificationsModal) {
+      this.btnPatientNotificationsModal.onclick = () => this.openPatientNotificationsModal();
+    }
+    const closePatientNotificationsModal = () => {
+      if (this.patientNotificationsModal) this.patientNotificationsModal.style.display = 'none';
+    };
+    if (this.btnClosePatientNotificationsModal) this.btnClosePatientNotificationsModal.onclick = closePatientNotificationsModal;
+    if (this.btnDonePatientNotifications) this.btnDonePatientNotifications.onclick = closePatientNotificationsModal;
+    if (this.patientNotificationsModal) {
+      this.patientNotificationsModal.onclick = (e) => {
+        if (e.target === this.patientNotificationsModal) closePatientNotificationsModal();
+      };
+    }
+    if (this.btnMarkPatientNotifsRead) {
+      this.btnMarkPatientNotifsRead.onclick = async () => {
+        await this.handleMarkPatientNotifsRead();
+      };
+    }
   },
 
   // =========================================================================
@@ -555,6 +632,7 @@ const DashboardController = {
     this.docSubtitle.textContent = `Lead Pediatrician & Immunologist • ${license} • ${hospital}`;
 
     await this.fetchPatientsRoster();
+    await this.fetchDoctorRequests();
   },
 
   async fetchPatientsRoster() {
@@ -1821,6 +1899,8 @@ const DashboardController = {
       this.patientData = data;
       const info = data.patientInfo;
 
+      await this.fetchPatientNotifications();
+
       if (this.patNameDisplay) this.patNameDisplay.textContent = info.fullName || (this.currentUser ? this.currentUser.fullName : 'New Patient');
       if (this.patSubtitle) {
         if (info.primaryPhysician) {
@@ -2032,15 +2112,33 @@ const DashboardController = {
   },
 
   renderPatientDoseCard(dose, isOverdue) {
-    const borderClass = isOverdue ? 'overdue-border overdue-red-glow' : 'scheduled-border';
+    const isPendingApproval = dose.requestStatus === 'pending' || dose.status === 'Pending Doctor Approval';
+    const isDeclined = dose.requestStatus === 'rejected' || dose.status === 'Declined by Doctor';
+
+    let borderClass = 'scheduled-border';
+    if (isOverdue) {
+      borderClass = 'overdue-border overdue-red-glow';
+    } else if (isDeclined) {
+      borderClass = 'overdue-border';
+    }
+
+    let statusPillHtml = '';
+    if (isOverdue) {
+      statusPillHtml = '<span class="status-pill status-overdue">⚠️ Overdue Appointment</span>';
+    } else if (isPendingApproval) {
+      statusPillHtml = '<span class="status-pill" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.4);">⏳ Pending Doctor Approval</span>';
+    } else if (isDeclined) {
+      statusPillHtml = '<span class="status-pill status-overdue">❌ Declined by Doctor</span>';
+    } else {
+      statusPillHtml = `<span class="status-pill status-scheduled">📅 ${dose.status || 'Confirmed Appointment'}</span>`;
+    }
+
     return `
       <div class="patient-upcoming-card ${borderClass}">
         <div class="patient-upcoming-card-info">
           <div class="vaccine-item-title">
             <span>${dose.vaccine}</span>
-            <span class="status-pill ${isOverdue ? 'status-overdue' : 'status-scheduled'}">
-              ${isOverdue ? '⚠️ Overdue Appointment' : (dose.status || '📅 Confirmed Appointment')}
-            </span>
+            ${statusPillHtml}
             ${isOverdue ? '<span class="status-pill status-overdue" style="font-size: 0.72rem; animation: redAlertPulse 2s infinite ease-in-out;">🚨 Overdue</span>' : ''}
           </div>
           <div class="vaccine-item-meta" style="margin-top: 6px;">
@@ -2049,6 +2147,16 @@ const DashboardController = {
             <span>🏥 <strong>Facility:</strong> ${dose.clinic || 'Community Health Clinic'}</span>
             <span>👨‍⚕️ <strong>Physician:</strong> ${dose.doctor || 'Unassigned Clinician'}</span>
           </div>
+          ${isPendingApproval ? `
+            <div style="font-size: 0.78rem; color: #b45309; margin-top: 6px; background: rgba(245, 158, 11, 0.08); padding: 5px 8px; border-radius: 4px;">
+              ⏳ <strong>Approval In Progress:</strong> Appointment request has been sent directly to Dr. ${dose.doctor || 'Attending Clinician'}. Once accepted, you will be enrolled into their patient list.
+            </div>
+          ` : ''}
+          ${isDeclined ? `
+            <div style="font-size: 0.78rem; color: #dc2626; margin-top: 6px; background: rgba(239, 68, 68, 0.08); padding: 5px 8px; border-radius: 4px;">
+              ⚠️ <strong>Doctor Decline Reason:</strong> ${dose.rejectionReason || 'Attending clinician was unavailable at the requested slot. Please reschedule with a different doctor or time.'}
+            </div>
+          ` : ''}
           ${dose.description ? `
             <div style="font-size: 0.78rem; color: var(--teal-700); margin-top: 6px; background: rgba(38,185,170,0.08); padding: 5px 8px; border-radius: 4px;">
               📝 <strong>Vaccine Description:</strong> ${dose.description}
@@ -2198,6 +2306,12 @@ const DashboardController = {
     const scheduledTime = document.getElementById('pat-sched-time')?.value || '10:30';
     const clinic = document.getElementById('pat-sched-clinic')?.value || 'Community Health Clinic';
     const notes = document.getElementById('pat-sched-notes')?.value?.trim() || '';
+    const doctorId = document.getElementById('pat-sched-doctor')?.value || '';
+
+    if (!doctorId) {
+      window.AuthController.showToast('Please assign an attending doctor from our database.', 'error');
+      return;
+    }
 
     if (!vaccineName || !scheduledDate) {
       window.AuthController.showToast('Please choose a vaccine and select an appointment date.', 'error');
@@ -2205,7 +2319,7 @@ const DashboardController = {
     }
 
     try {
-      window.AuthController.showToast('Scheduling vaccination appointment...', 'info');
+      window.AuthController.showToast('Submitting appointment request to assigned doctor...', 'info');
       const response = await window.api.schedulePatientDose({
         vaccineName,
         vaccineDescription,
@@ -2213,7 +2327,8 @@ const DashboardController = {
         scheduledDate,
         scheduledTime,
         clinic,
-        notes
+        notes,
+        doctorId
       });
 
       window.AuthController.showToast(response.message || 'Vaccination appointment scheduled successfully!', 'success');
@@ -2497,12 +2612,94 @@ const DashboardController = {
       .replace(/\+1\s*([0-9]{10})/g, '$1');
   },
 
-  openPatientScheduleModal() {
+  async openPatientScheduleModal() {
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     const dateInput = document.getElementById('pat-sched-date');
     if (dateInput && !dateInput.value) dateInput.value = tomorrow;
+    await this.loadDoctorsForPatientSchedule();
     const modal = this.patientScheduleModal || document.getElementById('patient-schedule-modal');
     if (modal) modal.style.display = 'flex';
+  },
+
+  async loadDoctorsForPatientSchedule() {
+    try {
+      const docSelect = document.getElementById('pat-sched-doctor');
+      const docCard = document.getElementById('pat-sched-doctor-info-card');
+      if (docCard) docCard.style.display = 'none';
+
+      if (!docSelect) return;
+      docSelect.innerHTML = '<option value="">⏳ Loading doctors from database...</option>';
+
+      const res = await window.api.getDoctors();
+      this.cachedDoctors = res.doctors || [];
+
+      if (this.cachedDoctors.length === 0) {
+        docSelect.innerHTML = '<option value="">No registered doctors found</option>';
+        return;
+      }
+
+      let optionsHtml = '<option value="">-- Choose Attending Doctor from Database --</option>';
+      this.cachedDoctors.forEach(d => {
+        optionsHtml += `<option value="${d.uid}">👨‍⚕️ ${d.fullName} — ${d.specialization} (${d.hospital})</option>`;
+      });
+
+      docSelect.innerHTML = optionsHtml;
+      docSelect.onchange = (e) => this.handlePatientDoctorSelectChange(e.target.value);
+      docSelect.oninput = (e) => this.handlePatientDoctorSelectChange(e.target.value);
+
+      // Pre-select first doctor if available so user gets instant preview
+      if (this.cachedDoctors.length > 0) {
+        const preferred = this.cachedDoctors[0];
+        docSelect.value = preferred.uid;
+        this.handlePatientDoctorSelectChange(preferred.uid);
+      }
+    } catch (err) {
+      console.error('Error loading doctors for scheduling:', err);
+    }
+  },
+
+  handlePatientDoctorSelectChange(doctorId) {
+    const docCard = document.getElementById('pat-sched-doctor-info-card');
+    if (!doctorId || !this.cachedDoctors) {
+      if (docCard) docCard.style.display = 'none';
+      return;
+    }
+
+    const doc = this.cachedDoctors.find(d => String(d.uid) === String(doctorId));
+    if (!doc) {
+      if (docCard) docCard.style.display = 'none';
+      return;
+    }
+
+    const nameEl = document.getElementById('pat-sched-doc-name');
+    const specEl = document.getElementById('pat-sched-doc-spec');
+    const hospEl = document.getElementById('pat-sched-doc-hosp');
+    const contactEl = document.getElementById('pat-sched-doc-contact');
+
+    if (nameEl) nameEl.textContent = doc.fullName;
+    if (specEl) specEl.textContent = doc.specialization || 'Pediatrician / Immunologist';
+    if (hospEl) hospEl.textContent = `🏥 ${doc.hospital || 'Medical Specialty Clinic'}`;
+    if (contactEl) contactEl.textContent = `📧 ${doc.email || 'N/A'} • 📞 ${this.formatPhoneNumber(doc.phone) || 'N/A'}`;
+
+    if (docCard) docCard.style.display = 'block';
+
+    // Auto set clinic selection to doctor hospital if available
+    const clinicSelect = document.getElementById('pat-sched-clinic');
+    if (clinicSelect && doc.hospital) {
+      let found = false;
+      for (let i = 0; i < clinicSelect.options.length; i++) {
+        if (clinicSelect.options[i].value === doc.hospital || clinicSelect.options[i].text.includes(doc.hospital.split('—')[0].trim())) {
+          clinicSelect.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        const newOpt = new Option(doc.hospital, doc.hospital, true, true);
+        clinicSelect.add(newOpt, 0);
+        clinicSelect.selectedIndex = 0;
+      }
+    }
   },
 
   openCertificateModal() {
@@ -2719,6 +2916,251 @@ const DashboardController = {
         await this.initPatientDashboard();
       }
       window.AuthController.showToast('Could not cancel appointment: ' + err.message, 'error');
+    }
+  },
+
+  // =========================================================================
+  // DOCTOR APPOINTMENT REQUESTS & ROSTER ENROLLMENT
+  // =========================================================================
+  async fetchDoctorRequests() {
+    try {
+      const res = await window.api.getDoctorAppointmentRequests();
+      this.doctorAppointmentRequests = res.requests || [];
+      const pendingCount = res.pendingCount || 0;
+
+      if (this.docPendingRequestsBadge) {
+        if (pendingCount > 0) {
+          this.docPendingRequestsBadge.textContent = pendingCount;
+          this.docPendingRequestsBadge.style.display = 'inline-block';
+        } else {
+          this.docPendingRequestsBadge.style.display = 'none';
+        }
+      }
+      if (this.docModalPendingBadge) {
+        this.docModalPendingBadge.textContent = `${pendingCount} Pending`;
+      }
+    } catch (err) {
+      console.error('Error fetching doctor requests:', err);
+    }
+  },
+
+  openDoctorRequestsModal() {
+    if (this.docRequestsModal) this.docRequestsModal.style.display = 'flex';
+    this.renderDoctorRequestsList();
+  },
+
+  renderDoctorRequestsList() {
+    const container = this.docRequestsListContainer;
+    if (!container) return;
+
+    const allRequests = this.doctorAppointmentRequests || [];
+    const filter = this.activeDocRequestsTab || 'pending';
+
+    const requests = filter === 'pending'
+      ? allRequests.filter(r => r.status === 'pending')
+      : allRequests;
+
+    if (requests.length === 0) {
+      container.innerHTML = `
+        <div class="neo-box-sm" style="padding: 30px 20px; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📬</div>
+          <strong style="color: var(--text-main); font-size: 0.95rem;">${filter === 'pending' ? 'No pending appointment requests' : 'No appointment requests on file'}</strong>
+          <div style="font-size: 0.8rem; margin-top: 4px;">
+            ${filter === 'pending' ? 'When patients assign you for vaccination appointments, their requests will appear here for clinical acceptance.' : 'All past and pending appointment requests will appear here.'}
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = requests.map(req => {
+      const isPending = req.status === 'pending';
+      const isAccepted = req.status === 'accepted';
+
+      const borderClass = isPending ? 'pending-border' : (isAccepted ? 'accepted-border' : 'rejected-border');
+      const pillClass = isPending ? 'status-scheduled' : (isAccepted ? 'status-administered' : 'status-overdue');
+      const pillText = isPending ? '⏳ Pending Approval' : (isAccepted ? '✅ Accepted & Enrolled' : '❌ Declined');
+
+      const ageCalc = req.patientDob ? this.calculatePatientAge(req.patientDob) : null;
+      const ageDisplay = ageCalc ? ageCalc.ageDisplay : 'Age N/A';
+
+      return `
+        <div class="request-card ${borderClass}">
+          <div class="request-card-header">
+            <div class="request-card-title">
+              <span>👤 ${req.patientName}</span>
+              <span class="status-pill ${pillClass}">${pillText}</span>
+            </div>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">
+              Requested: ${new Date(req.createdAtIso || req.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+
+          <div class="request-card-meta">
+            <span>💉 <strong>Vaccine:</strong> ${req.vaccineName} (${req.doseNumber || 'Routine Dose'})</span>
+            <span>🕒 <strong>Requested Slot:</strong> <strong style="color: var(--teal-700);">${req.scheduledDisplay}</strong></span>
+            <span>🏥 <strong>Facility:</strong> ${req.clinic || 'Specialty Clinic'}</span>
+            <span>🩸 <strong>Blood:</strong> ${req.patientBloodGroup || 'N/A'}</span>
+            <span>🎂 <strong>Age:</strong> ${ageDisplay}</span>
+            <span>📞 <strong>Mobile:</strong> ${this.formatPhoneNumber(req.patientPhone) || 'Not provided'}</span>
+            <span>📧 <strong>Email:</strong> ${req.patientEmail || 'Not provided'}</span>
+            ${req.patientAllergies && req.patientAllergies !== 'None' ? `<span style="color: #dc2626;">⚠️ <strong>Allergies:</strong> ${req.patientAllergies}</span>` : ''}
+          </div>
+
+          ${req.notes ? `
+            <div style="font-size: 0.8rem; background: rgba(0,0,0,0.03); padding: 7px 10px; border-radius: 6px; margin-top: 6px; color: var(--text-main);">
+              📝 <strong>Patient Notes:</strong> ${req.notes}
+            </div>
+          ` : ''}
+
+          ${!isPending && req.doctorNotes ? `
+            <div style="font-size: 0.78rem; color: ${isAccepted ? '#047857' : '#dc2626'}; background: ${isAccepted ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)'}; padding: 6px 10px; border-radius: 6px; margin-top: 6px;">
+              👨‍⚕️ <strong>Doctor's Decision Note:</strong> ${req.doctorNotes}
+            </div>
+          ` : ''}
+
+          ${isPending ? `
+            <div class="request-card-actions">
+              <button type="button" class="btn-request-accept" onclick="DashboardController.handleDoctorAcceptRequest('${req.id}')">
+                ✅ Accept & Enroll Patient into Roster
+              </button>
+              <button type="button" class="btn-request-reject" onclick="DashboardController.handleDoctorRejectRequest('${req.id}')">
+                ❌ Decline Appointment
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  },
+
+  async handleDoctorAcceptRequest(requestId) {
+    try {
+      window.AuthController.showToast('Enrolling patient into your roster and confirming appointment...', 'info');
+      const res = await window.api.respondDoctorAppointmentRequest(requestId, 'accept');
+      window.AuthController.showToast(res.message || 'Appointment accepted! Patient successfully added to your caseload roster.', 'success');
+      await this.fetchDoctorRequests();
+      this.renderDoctorRequestsList();
+      await this.fetchPatientsRoster();
+    } catch (err) {
+      window.AuthController.showToast('Could not accept appointment: ' + err.message, 'error');
+    }
+  },
+
+  async handleDoctorRejectRequest(requestId) {
+    const reason = prompt(
+      "Enter clinical reason for declining this appointment request (this explanation will be sent directly to the patient's portal):",
+      "Attending physician is unavailable at the requested time slot. Please select an alternate slot."
+    );
+    if (reason === null) return;
+
+    try {
+      window.AuthController.showToast('Declining appointment request...', 'info');
+      const res = await window.api.respondDoctorAppointmentRequest(requestId, 'reject', reason);
+      window.AuthController.showToast(res.message || 'Appointment request declined. Notification dispatched to patient.', 'info');
+      await this.fetchDoctorRequests();
+      this.renderDoctorRequestsList();
+    } catch (err) {
+      window.AuthController.showToast('Could not decline request: ' + err.message, 'error');
+    }
+  },
+
+  // =========================================================================
+  // PATIENT NOTIFICATIONS & DOCTOR RESPONSES
+  // =========================================================================
+  async fetchPatientNotifications() {
+    try {
+      const res = await window.api.getPatientNotifications();
+      this.patientNotifications = res.notifications || [];
+      const unreadCount = res.unreadCount || 0;
+
+      if (this.patientNotificationsBadge) {
+        if (unreadCount > 0) {
+          this.patientNotificationsBadge.textContent = unreadCount;
+          this.patientNotificationsBadge.style.display = 'inline-block';
+        } else {
+          this.patientNotificationsBadge.style.display = 'none';
+        }
+      }
+      if (this.patientModalUnreadBadge) {
+        if (unreadCount > 0) {
+          this.patientModalUnreadBadge.textContent = `${unreadCount} New`;
+          this.patientModalUnreadBadge.style.display = 'inline-block';
+        } else {
+          this.patientModalUnreadBadge.style.display = 'none';
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching patient notifications:', err);
+    }
+  },
+
+  openPatientNotificationsModal() {
+    if (this.patientNotificationsModal) this.patientNotificationsModal.style.display = 'flex';
+    this.renderPatientNotificationsList();
+  },
+
+  renderPatientNotificationsList() {
+    const container = this.patientNotificationsListContainer;
+    if (!container) return;
+
+    const notifs = this.patientNotifications || [];
+    if (notifs.length === 0) {
+      container.innerHTML = `
+        <div class="neo-box-sm" style="padding: 30px 20px; text-align: center; color: var(--text-muted);">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📭</div>
+          <strong style="color: var(--text-main); font-size: 0.95rem;">No notifications yet</strong>
+          <div style="font-size: 0.8rem; margin-top: 4px;">
+            When attending doctors respond to your vaccination requests, alerts will appear right here.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = notifs.map(n => {
+      const isAccepted = n.type === 'appointment_accepted';
+      const isRejected = n.type === 'appointment_rejected';
+      const cardType = isAccepted ? 'accepted' : (isRejected ? 'rejected' : '');
+
+      return `
+        <div class="notif-card ${cardType} ${n.read ? '' : 'unread'}">
+          <div class="notif-title-row">
+            <div class="notif-title">
+              <span>${isAccepted ? '🎉' : (isRejected ? '⚠️' : '🔔')}</span>
+              <span>${n.title || 'Notification'}</span>
+            </div>
+            <span class="notif-time">${new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div class="notif-message">${n.message}</div>
+          ${isRejected ? `
+            <div style="margin-top: 6px;">
+              <button type="button" class="btn-primary-glow" onclick="DashboardController.closePatientNotificationsModal(); DashboardController.openPatientScheduleModal();" style="padding: 6px 14px; font-size: 0.76rem;">
+                🔄 Reschedule with Another Doctor
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  },
+
+  closePatientNotificationsModal() {
+    if (this.patientNotificationsModal) this.patientNotificationsModal.style.display = 'none';
+  },
+
+  async handleMarkPatientNotifsRead() {
+    try {
+      await window.api.markPatientNotificationsRead();
+      if (this.patientNotifications) {
+        this.patientNotifications.forEach(n => { n.read = true; });
+      }
+      if (this.patientNotificationsBadge) this.patientNotificationsBadge.style.display = 'none';
+      if (this.patientModalUnreadBadge) this.patientModalUnreadBadge.style.display = 'none';
+      this.renderPatientNotificationsList();
+      window.AuthController.showToast('All notifications marked as read.', 'success');
+    } catch (err) {
+      window.AuthController.showToast('Could not mark read: ' + err.message, 'error');
     }
   }
 };

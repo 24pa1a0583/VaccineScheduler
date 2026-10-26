@@ -105,6 +105,10 @@ const UserSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.Mixed],
     default: []
   },
+  notifications: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
+  },
   status: {
     type: String,
     default: 'active'
@@ -272,12 +276,140 @@ const PatientRecordSchema = new mongoose.Schema({
   minimize: false
 });
 
+/**
+ * AppointmentRequest Schema
+ * Represents incoming appointment booking requests from patients assigned to a specific doctor.
+ * The doctor can review, accept, or decline each request.
+ * Upon acceptance, patient is automatically enrolled into the doctor's roster.
+ */
+const AppointmentRequestSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true
+  },
+  patientUid: {
+    type: String,
+    required: true,
+    index: true
+  },
+  patientName: {
+    type: String,
+    required: true
+  },
+  patientEmail: {
+    type: String,
+    default: ''
+  },
+  patientPhone: {
+    type: String,
+    default: ''
+  },
+  patientDob: {
+    type: String,
+    default: null
+  },
+  patientGender: {
+    type: String,
+    default: ''
+  },
+  patientBloodGroup: {
+    type: String,
+    default: ''
+  },
+  patientAllergies: {
+    type: String,
+    default: 'None'
+  },
+  doctorId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  doctorName: {
+    type: String,
+    required: true
+  },
+  doctorEmail: {
+    type: String,
+    default: ''
+  },
+  doctorHospital: {
+    type: String,
+    default: ''
+  },
+  doctorSpecialization: {
+    type: String,
+    default: ''
+  },
+  vaccineName: {
+    type: String,
+    required: true
+  },
+  doseNumber: {
+    type: String,
+    default: 'Dose 1'
+  },
+  vaccineDescription: {
+    type: String,
+    default: ''
+  },
+  scheduledDate: {
+    type: String,
+    required: true
+  },
+  scheduledTime: {
+    type: String,
+    default: '10:00'
+  },
+  scheduledDisplay: {
+    type: String,
+    default: ''
+  },
+  clinic: {
+    type: String,
+    default: ''
+  },
+  notes: {
+    type: String,
+    default: ''
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected'],
+    default: 'pending',
+    index: true
+  },
+  doctorNotes: {
+    type: String,
+    default: ''
+  },
+  doseId: {
+    type: String,
+    default: ''
+  },
+  createdAtIso: {
+    type: String,
+    default: () => new Date().toISOString()
+  },
+  respondedAtIso: {
+    type: String,
+    default: null
+  }
+}, {
+  timestamps: true,
+  minimize: false
+});
+
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const PatientRecord = mongoose.models.PatientRecord || mongoose.model('PatientRecord', PatientRecordSchema);
+const AppointmentRequest = mongoose.models.AppointmentRequest || mongoose.model('AppointmentRequest', AppointmentRequestSchema);
 
 module.exports = {
   mongoose,
   connectDB,
   User,
-  PatientRecord
+  PatientRecord,
+  AppointmentRequest
 };

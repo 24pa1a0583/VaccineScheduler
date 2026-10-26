@@ -208,7 +208,39 @@ const api = {
     return this.request(`/data/patient-me/doses/${doseId}/administer`, {
       method: 'POST'
     });
+  },
+
+  async getDoctors() {
+    return this.request('/data/doctors');
+  },
+
+  async getDoctorAppointmentRequests() {
+    return this.request('/data/doctor/appointment-requests');
+  },
+
+  async respondDoctorAppointmentRequest(requestId, action, notes = '') {
+    return this.request(`/data/doctor/appointment-requests/${requestId}/respond`, {
+      method: 'POST',
+      body: JSON.stringify({ action, notes })
+    });
+  },
+
+  async getPatientNotifications() {
+    return this.request('/data/patient-me/notifications');
+  },
+
+  async markPatientNotificationsRead() {
+    return this.request('/data/patient-me/notifications/mark-read', {
+      method: 'POST'
+    });
+  },
+
+  async markDoctorNotificationsRead() {
+    return this.request('/data/doctor/notifications/mark-read', {
+      method: 'POST'
+    });
   }
 };
 
 window.api = api;
+

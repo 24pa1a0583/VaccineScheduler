@@ -153,14 +153,22 @@ When you log in, your personal Digital Pass displays:
 
 ---
 
-### 2. Scheduling a New Vaccine Appointment
+### 2. Scheduling a New Vaccine Appointment & Assigning a Doctor
 Want to schedule a routine booster, seasonal flu shot, or travel vaccine?
 1. Click **"➕ Schedule New Vaccine"** on your dashboard.
-2. Select or type the vaccine name and dose.
-3. Pick your preferred appointment date and time.
-4. Select your clinic or health facility.
-5. Add optional notes (e.g., "Egg allergy formulation needed").
-6. Click **"Confirm & Add Vaccine Appointment"**.
+2. Select or type the vaccine name and dose stage.
+3. **👨‍⚕️ Assign Attending Doctor from Database**: Choose your preferred physician from all doctors registered in the live database. An interactive preview card displays their specialization, hospital, email, and direct phone contact.
+4. Pick your preferred appointment date and time slot.
+5. Add any clinical notes or allergy details for the physician.
+6. Click **"📅 Confirm Appointment & Set Reminder"**.
+
+> [!NOTE]
+> **Clinical Enrollment & Approval Workflow:**
+> - When you submit an appointment, a direct request is dispatched to the chosen doctor.
+> - While awaiting review, your appointment card displays a amber **`⏳ Pending Doctor Approval`** status.
+> - **If the doctor accepts:** You are officially enrolled into their active patient list, the appointment is confirmed, and an acceptance notification with doctor notes is delivered to your portal.
+> - **If the doctor declines:** The appointment does not appear on their active patient list, and an alert with the doctor's clinical reason is sent to your **`🔔 Doctor Responses`** inbox with a 1-click **"🔄 Reschedule with Another Doctor"** button.
+
 
 ---
 

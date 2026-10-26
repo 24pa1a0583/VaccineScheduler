@@ -783,6 +783,14 @@
   z-index: 20000 !important;
 }
 
+#doctor-requests-modal {
+  z-index: 20000 !important;
+}
+
+#patient-notifications-modal {
+  z-index: 20000 !important;
+}
+
 #user-profile-modal {
   z-index: 10600 !important;
 }
@@ -1654,5 +1662,163 @@
     font-size: 1rem;
     flex-wrap: wrap;
   }
+}
+
+/* ==========================================================================
+   DOCTOR APPOINTMENT REQUESTS & PATIENT NOTIFICATIONS STYLES
+   ========================================================================== */
+.request-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--neo-flat);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.request-card.pending-border {
+  border-left: 5px solid #f59e0b;
+}
+
+.request-card.accepted-border {
+  border-left: 5px solid #10b981;
+}
+
+.request-card.rejected-border {
+  border-left: 5px solid #ef4444;
+}
+
+.request-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.request-card-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.request-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.request-card-meta strong {
+  color: var(--text-main);
+}
+
+.request-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-request-accept {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.btn-request-accept:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-request-reject {
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-request-reject:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+}
+
+.notif-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: var(--neo-flat);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.notif-card.accepted {
+  border-left: 4px solid #10b981;
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.notif-card.rejected {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.notif-card.unread {
+  font-weight: 600;
+}
+
+.notif-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notif-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notif-time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.notif-message {
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.45;
 }
 

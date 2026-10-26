@@ -362,6 +362,10 @@
           </div>
 
           <div class="portal-topbar-actions">
+            <button type="button" id="btn-doc-requests-modal" class="btn-primary-glow" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; position: relative;">
+              <span>🔔 Patient Requests</span>
+              <span id="doc-pending-requests-badge" class="badge-count" style="display: none; background: #ef4444; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 999px;">0</span>
+            </button>
             <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
               ✏️ Edit Profile
             </button>
@@ -490,6 +494,10 @@
           </div>
 
           <div class="portal-topbar-actions">
+            <button type="button" id="btn-patient-notifications-modal" class="btn-primary-glow" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; position: relative;">
+              <span>🔔 Doctor Responses</span>
+              <span id="patient-notifications-badge" class="badge-count" style="display: none; background: #0d9488; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 999px;">0</span>
+            </button>
             <button type="button" class="btn-secondary-neo btn-open-profile-modal" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
               ✏️ Edit Profile
             </button>
@@ -759,6 +767,32 @@
         <div class="form-group">
           <label for="pat-sched-vaccine-desc" class="form-label">Describe Your Vaccine / Notes <span style="font-size: 0.76rem; color: var(--text-muted); font-weight: normal;">(Scope to describe composition, target condition, reason, or manufacturer)</span></label>
           <textarea id="pat-sched-vaccine-desc" class="neo-input" rows="2" placeholder="e.g. 2-dose recombinant booster for older adult protection; recommended prior to upcoming international travel..."></textarea>
+        </div>
+
+        <!-- Doctor Assignment Section with Live Info Card from Database -->
+        <div class="form-group" style="margin-top: 10px;">
+          <label for="pat-sched-doctor" class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>👨‍⚕️ Assign Attending Doctor <span style="color: var(--teal-700); font-weight: normal;">*</span></span>
+            <span style="font-size: 0.72rem; color: var(--teal-700); font-weight: 600;">Live Database Clinicians</span>
+          </label>
+          <select id="pat-sched-doctor" class="neo-select" required onchange="DashboardController.handlePatientDoctorSelectChange(this.value)">
+            <option value="">-- Choose Attending Doctor from Database --</option>
+          </select>
+        </div>
+
+        <!-- Doctor Details Preview Card -->
+        <div id="pat-sched-doctor-info-card" class="neo-box-sm" style="display: none; padding: 12px 14px; margin-bottom: 14px; background: rgba(38, 185, 170, 0.06); border: 1px solid rgba(38, 185, 170, 0.25); border-radius: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <strong id="pat-sched-doc-name" style="color: var(--teal-800); font-size: 0.92rem;">Dr. Sarah Jenkins, MD</strong>
+            <span id="pat-sched-doc-spec" class="status-pill status-administered" style="font-size: 0.7rem; padding: 2px 8px;">Pediatrician</span>
+          </div>
+          <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 2px;">
+            <span id="pat-sched-doc-hosp">🏥 Swedish Medical Center</span>
+            <span id="pat-sched-doc-contact">📧 doctor@immu-track.org • 📞 555-234-8901</span>
+          </div>
+          <div style="margin-top: 6px; font-size: 0.72rem; color: var(--teal-700); font-style: italic;">
+            ⚡ An appointment request will be dispatched directly to this doctor. Once accepted, you will be enrolled into their patient list.
+          </div>
         </div>
 
         <div class="form-row">
@@ -1702,6 +1736,71 @@
           <button type="submit" class="btn-primary-glow">💾 Save & Reschedule Appointment</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: DOCTOR APPOINTMENT REQUESTS & CLINICAL ROSTER ENROLLMENT
+       ====================================================================== -->
+  <div id="doctor-requests-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card chart-modal-dialog" style="max-width: 840px !important;">
+      <div class="modal-header">
+        <h3>
+          <span>📋 Patient Appointment Requests</span>
+          <span id="doc-modal-pending-count-badge" class="badge-count" style="background: #ef4444; color: #fff; font-size: 0.76rem; padding: 2px 8px; border-radius: 999px;">0 Pending</span>
+        </h3>
+        <button type="button" id="btn-close-doctor-requests-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="background: rgba(38, 185, 170, 0.08); border-radius: var(--radius-sm); border-left: 4px solid var(--teal-600); padding: 10px 14px; margin-bottom: 16px; font-size: 0.8rem; color: var(--text-main);">
+        💡 <strong>Clinical Enrollment Workflow:</strong> Patients who select you as their attending doctor will appear here. Accepting an appointment officially enrolls the patient into your active clinical caseload list and confirms their appointment. Rejecting sends an instant notification with your reason to the patient.
+      </div>
+
+      <!-- Segmented Tabs: Pending Requests vs All Requests / History -->
+      <div class="neo-segmented-control" style="margin-bottom: 16px; display: flex; gap: 8px;">
+        <button type="button" id="tab-doc-requests-pending" class="segment-btn active" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer;">⏳ Pending Review</button>
+        <button type="button" id="tab-doc-requests-all" class="segment-btn" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; cursor: pointer;">📑 All Requests / History</button>
+      </div>
+
+      <!-- Request list container -->
+      <div id="doctor-requests-list-container" style="display: flex; flex-direction: column; gap: 14px; max-height: 55vh; overflow-y: auto; padding-right: 4px;">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 18px; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-top: 14px;">
+        <button type="button" id="btn-done-doctor-requests" class="btn-primary-glow" style="padding: 8px 20px;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL: PATIENT NOTIFICATIONS & DOCTOR RESPONSES
+       ====================================================================== -->
+  <div id="patient-notifications-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3>
+          <span>🔔 Doctor Responses & Notifications</span>
+          <span id="patient-modal-unread-badge" class="badge-count" style="display: none; background: #0d9488; color: #fff; font-size: 0.74rem; padding: 2px 8px; border-radius: 999px;">0 New</span>
+        </h3>
+        <button type="button" id="btn-close-patient-notifications-modal" class="neo-circle-btn" style="width: 32px; height: 32px;">&times;</button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Real-time clinical updates on your appointment requests</span>
+        <button type="button" id="btn-mark-patient-notifs-read" class="btn-secondary-neo" style="padding: 4px 10px; font-size: 0.75rem;">
+          ✓ Mark all as read
+        </button>
+      </div>
+
+      <!-- Notifications list container -->
+      <div id="patient-notifications-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 55vh; overflow-y: auto; padding-right: 4px;">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 18px; border-top: 1px solid rgba(226, 232, 240, 0.8); padding-top: 14px;">
+        <button type="button" id="btn-done-patient-notifications" class="btn-primary-glow" style="padding: 8px 20px;">Close</button>
+      </div>
     </div>
   </div>
 
